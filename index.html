@@ -10,6 +10,18 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600;1,700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <script>
+      (function () {
+        var theme = "dark";
+        try {
+          var saved = localStorage.getItem("chinu-theme");
+          if (saved === "light" || saved === "dark") theme = saved;
+        } catch (error) {
+          theme = "dark";
+        }
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
     <script src="config.js"></script>
     <script src="app.js" defer></script>
   </head>
@@ -26,6 +38,10 @@
       </nav>
       <div class="header-actions">
         <span id="table-chip" class="table-chip" hidden></span>
+        <button class="theme-toggle" id="theme-toggle" type="button" title="Switch to light mode" aria-pressed="false" aria-label="Switch to light mode">
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.6 12h2.2M19.2 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></svg>
+        </button>
         <button class="button button-outline cart-open" id="cart-open" type="button" aria-label="Open your order">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 9V6a3 3 0 0 1 6 0v3"/></svg>
           <span>Order</span><span class="cart-count" id="cart-count">0</span>

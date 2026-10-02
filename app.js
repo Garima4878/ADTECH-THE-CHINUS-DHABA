@@ -39,6 +39,31 @@
   const backdrop = $("#drawer-backdrop");
   const checkoutDialog = $("#checkout-dialog");
   const staffDialog = $("#staff-dialog");
+  const themeToggle = $("#theme-toggle");
+  const THEME_STORAGE_KEY = "chinu-theme";
+  const THEME_COLORS = { dark: "#171311", light: "#fbf6f0" };
+
+  function applyTheme(theme) {
+    const next = theme === "light" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    const label = `Switch to ${next === "light" ? "dark" : "light"} mode`;
+    themeToggle.setAttribute("aria-pressed", String(next === "light"));
+    themeToggle.setAttribute("aria-label", label);
+    themeToggle.setAttribute("title", label);
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", THEME_COLORS[next]);
+  }
+
+  function toggleTheme() {
+    const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+    applyTheme(next);
+    try {
+      localStorage.setItem(THEME_STORAGE_KEY, next);
+    } catch (error) {
+      console.warn("Could not save your theme choice.", error);
+    }
+    showToast(next === "light" ? "Light mode on." : "Dark mode on.");
+  }
 
   function readStorage(key, fallback) {
     try {
@@ -878,6 +903,7 @@
   }
 
   $("#cart-open").addEventListener("click", openDrawer);
+  themeToggle.addEventListener("click", toggleTheme);
   $("#cart-close").addEventListener("click", closeDrawer);
   backdrop.addEventListener("click", closeDrawer);
   $("#browse-menu").addEventListener("click", () => {
@@ -927,6 +953,7 @@
     const onlineOption = $("#online-payment-option");
     onlineOption.hidden = false;
   }
+  applyTheme(document.documentElement.dataset.theme);
   renderCart();
   renderTracking();
   loadMenu();
