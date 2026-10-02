@@ -205,6 +205,13 @@ PUT    /admin/staff/:id
 DELETE /admin/staff/:id
 ```
 
+### Note on this repository
+
+This repository currently holds the **admin dashboard** only. The customer-facing frontend
+(QR Scan → Table → Menu → Cart → Order → Payment → Verification) and the Node/Express
+backend are separate projects and are not included here. Both apps depend on the API
+contract below, so they can be connected later without changing page code.
+
 ### Response envelope
 
 List endpoints may return a bare array, `{ "data": [...] }`, or a named key such as `{ "orders": [...] }` —
