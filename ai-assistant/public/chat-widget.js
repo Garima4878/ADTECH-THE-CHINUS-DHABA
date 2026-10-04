@@ -8,7 +8,8 @@
  *           data-bottom-offset="80"      (optional - px above a sticky cart bar)
  *           defer></script>
  *
- * "Add to cart" does NOT touch the cart itself. It dispatches a browser event the frontend handles:
+ * "Add to cart" does NOT touch the cart itself. It dispatches a browser event the frontend handles.
+ * detail.itemId is the backend menu id (MongoDB _id) when MENU_API_URL is connected, else our knowledge-base id:
  *   window.addEventListener('chinu:add-to-cart', (e) => addToCart(e.detail.itemId));
  * The widget is non-modal: the menu stays scrollable and usable while it is open.
  */
@@ -152,7 +153,7 @@
       add.setAttribute('aria-label', 'Add ' + item.name + ' to cart');
       if (!item.available) { add.disabled = true; add.textContent = 'Unavailable'; }
       add.addEventListener('click', function () {
-        window.dispatchEvent(new CustomEvent('chinu:add-to-cart', { detail: { itemId: item.id, name: item.name, source: 'ai-assistant' } }));
+        window.dispatchEvent(new CustomEvent('chinu:add-to-cart', { detail: { itemId: item.menu_item_id || item.id, aiItemId: item.id, name: item.name, source: 'ai-assistant' } }));
         add.textContent = 'Added ✓';
         add.disabled = true;
         setTimeout(function () { add.textContent = 'Add'; add.disabled = false; }, 1500);

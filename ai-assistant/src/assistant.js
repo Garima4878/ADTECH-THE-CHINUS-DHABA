@@ -28,6 +28,7 @@ export function sanitizeHistory(history) {
 export function itemSummary(item) {
   return {
     id: item.id,
+    menu_item_id: item.menu_item_id || null, // backend (MongoDB) id when the live menu is connected
     name: item.name,
     name_hi: item.name_hi,
     category: item.category,

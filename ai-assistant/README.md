@@ -123,16 +123,23 @@ Add one script tag to the customer menu page:
 
 ### Backend (Backend + Fullstack interns)
 
-1. **Use the same item `id`s** as `data/restaurant-knowledge-base.json` (e.g. `chicken-biryani`), or share your ids and I'll update the JSON. The cart event sends this id.
-2. **Menu endpoint for live availability**: set `MENU_API_URL` to an endpoint returning
+1. **Connect the live menu**: set `MENU_API_URL` to the team backend's menu route, e.g.
+   `MENU_API_URL=http://localhost:5000/api/menu` (deployed: `https://<backend-url>/api/menu`).
+   It reads the backend's response as-is:
 
    ```json
-   [{ "id": "chicken-biryani", "price": 180, "available": true }, ...]      // or { "items": [...] }
+   { "success": true, "data": { "menu": [{ "_id": "66f1…", "name": "Chicken Biryani", "price": 220, "isAvailable": true, "category": { "name": "Biryani" } }] } }
    ```
 
-   Backend price and availability override the local file (cached 60 s), so the AI never suggests a sold-out dish.
+   A plain array or `{ "items": [...] }` with `id` / `available` also works.
+2. **Dish matching**: backend dishes are matched to the knowledge base by **dish name** (the backend uses MongoDB ids), so please
+   use the same dish names as `data/restaurant-knowledge-base.json` (e.g. "Chicken Biryani", "Mutton Paya Korma") when seeding the menu.
+   Backend dishes with other names are still added, so the AI can talk about them.
+3. Backend price and availability override the local file (cached 60 s), so the AI never suggests a sold-out dish.
    If the backend is down, the AI falls back to the local file and logs a warning.
-3. Prices shown by the AI are for guidance only. **Order totals are always calculated by the backend.**
+4. **Add to cart**: when the live menu is connected, the chat's `chinu:add-to-cart` event sends the backend `_id` as
+   `detail.itemId` (our knowledge-base id is in `detail.aiItemId`), so the cart can pass it straight to `POST /api/orders`.
+5. Prices shown by the AI are for guidance only. **Order totals are always calculated by the backend.**
 
 ### DevOps
 

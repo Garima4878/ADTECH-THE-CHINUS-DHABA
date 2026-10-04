@@ -31,7 +31,8 @@
     { "id": "fish", "name": "Fish", "name_hi": "फिश" },
     { "id": "biryani", "name": "Biryani", "name_hi": "बिरयानी" },
     { "id": "thali", "name": "Thali", "name_hi": "थाली" },
-    { "id": "roti", "name": "Roti", "name_hi": "रोटी" }
+    { "id": "roti", "name": "Roti", "name_hi": "रोटी" },
+    { "id": "other", "name": "Other", "name_hi": "अन्य" }
   ],
 
   "items": [

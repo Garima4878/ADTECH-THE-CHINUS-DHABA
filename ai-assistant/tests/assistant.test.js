@@ -37,6 +37,39 @@ describe('knowledge base', () => {
     assert.equal(item.available, false);
   });
 
+  test("reads the team backend's GET /api/menu response (MongoDB ids, isAvailable)", async () => {
+    resetKnowledgeBaseCache();
+    const backendBody = {
+      success: true,
+      message: 'Menu fetched successfully.',
+      data: {
+        menu: [
+          { _id: '66f1a0000000000000000001', name: 'Chicken Biryani', price: 220, isAvailable: true, category: { _id: 'c1', name: 'Biryani' } },
+          { _id: '66f1a0000000000000000002', name: 'Mutton Handi', price: 380, isAvailable: false, category: { _id: 'c2', name: 'Mutton' } },
+          { _id: '66f1a0000000000000000003', name: 'Chicken Lollipop', price: 180, isAvailable: true, category: { _id: 'c1', name: 'Chicken' } },
+        ],
+      },
+    };
+    const fetchImpl = async () => ({ ok: true, json: async () => backendBody });
+    const live = await loadKnowledgeBase({ menuApiUrl: 'http://backend/api/menu', fetchImpl, logger: silent });
+    resetKnowledgeBaseCache();
+
+    assert.equal(live.liveSynced, true);
+    const biryani = live.items.find((i) => i.id === 'chicken-biryani');
+    assert.equal(biryani.price, 220);
+    assert.equal(biryani.menu_item_id, '66f1a0000000000000000001');
+    assert.equal(live.items.find((i) => i.id === 'mutton-handi').available, false);
+    const added = live.items.find((i) => i.name === 'Chicken Lollipop');
+    assert.equal(added.category, 'chicken');
+    assert.equal(added.menu_item_id, '66f1a0000000000000000003');
+
+    // Sold-out dishes are never recommended, and the chat's Add button sends the backend id.
+    const assistant = createAssistant({ loadKb: async () => live, logger: silent });
+    const res = await assistant.chat({ message: 'chicken biryani milega?' });
+    assert.equal(res.items[0].menu_item_id, '66f1a0000000000000000001');
+    assert.ok(!recommend(live.items, { preference: 'mutton' }, 10).items.some((i) => i.id === 'mutton-handi'));
+  });
+
   test('falls back to the local file when the menu API is down', async () => {
     resetKnowledgeBaseCache();
     const failingFetch = async () => { throw new Error('ECONNREFUSED'); };
