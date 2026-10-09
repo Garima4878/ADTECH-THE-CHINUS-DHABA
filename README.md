@@ -144,6 +144,33 @@ cp .env.example .env
 npm run dev
 ```
 
+## Run everything on one PC (`npm run demo`)
+
+For local testing and demos, one command starts the backend, the customer website, the AI menu chat and the admin dashboard:
+
+```bash
+npm install
+(cd ai-assistant && npm install)
+(cd admin-dashboard && npm install)
+npm run demo
+```
+
+It prints the links:
+
+- Customer website: `http://localhost:8080/?table=T05`. It also works from a phone on the same Wi-Fi via the PC's address shown in the output. If the phone can't connect, allow Node.js through Windows Firewall for private networks.
+- Admin dashboard: `http://localhost:5173`, login `admin` with `SEED_ADMIN_PASSWORD` from `.env` (default `chinu-admin-2026`)
+
+The database is the MongoDB in `MONGODB_URI` if it's running, otherwise a temporary in-memory one that is cleared when the demo stops. Online payment is switched on when Razorpay **test** keys are in `.env`. Pay with UPI ID `success@razorpay` (or `failure@razorpay` to test a failed payment). The website server only serves `index.html`, `app.js`, `styles.css` and `assets/`, never `.env` or source files.
+
+## Table QR codes (`npm run qr`)
+
+```bash
+npm run qr -- https://<website-address>             # tables T01-T10
+npm run qr -- https://<website-address> --tables 12
+```
+
+This creates `qr-codes/T01.png`, `qr-codes/T02.png` and so on, plus `qr-codes/print.html`: cards with the restaurant name, "Scan to see the menu & order" and the table number, ready to print on A4. Each code opens `https://<website-address>/?table=T01` (etc.), matching the tables from `npm run seed`. Make them after the website is deployed, and scan one with a phone before printing. For phone testing with `npm run demo`, use the Wi-Fi address it prints, e.g. `npm run qr -- http://192.168.1.5:8080`. The `qr-codes/` folder is git-ignored.
+
 ## MongoDB Setup
 
 1. Install MongoDB locally or use a MongoDB Atlas cluster.
