@@ -15,7 +15,7 @@ Built by the AD Tech Enterprises intern team.
 
 | Part | Folder | What it is | Tech | Details |
 |---|---|---|---|---|
-| **Customer website** | repository root: `index.html`, `app.js`, `styles.css`, `config.js`, `assets/` | Menu, cart, checkout, online payment, order tracking. Phone-first. | HTML, CSS, JavaScript (no build step) | [docs/WEBSITE.md](docs/WEBSITE.md) |
+| **Customer website** | repository root: `index.html`, `app.js`, `styles.css`, `config.js`, `assets/`; animations in `effects.css` / `effects.js` | Menu, cart, checkout, online payment, order tracking. Phone-first, animated (switched off for visitors who prefer reduced motion). | HTML, CSS, JavaScript (no build step) | [docs/WEBSITE.md](docs/WEBSITE.md) |
 | **Backend API** | `server.js`, `src/`, `scripts/`, `test/` | Menu, tables, orders, payments (Razorpay), staff login, admin API | Node.js, Express, MongoDB, Razorpay | [docs/BACKEND.md](docs/BACKEND.md) |
 | **AI menu assistant** | `ai-assistant/` | Chat button on the website: answers menu questions (English/Hindi/Hinglish) and recommends dishes, only from the real menu | Node.js, Express, Google Gemini | [ai-assistant/README.md](ai-assistant/README.md) |
 | **Restaurant admin dashboard** | `admin-dashboard/` | Staff login, live orders, kitchen screen, menu, tables, payments, staff accounts | React, TypeScript, Vite | [admin-dashboard/README.md](admin-dashboard/README.md) |
@@ -113,7 +113,7 @@ Every part has a `.env.example`. Copy it to `.env` and fill it in. **`.env` file
 1. **Database:** create a MongoDB Atlas cluster (free tier) and set `MONGODB_URI`.
 2. **Backend:** deploy `server.js` (`npm start`) with the root `.env` values, then run `npm run seed` once. Health check: `/api/health`.
 3. **AI assistant:** deploy `ai-assistant/` (`npm start`) with its `.env`. Health check: `/api/ai/health`.
-4. **Website:** host the root static files (`index.html`, `app.js`, `styles.css`, `config.js`, `assets/`) and set the live URLs in `config.js` (`onlinePayments: true` when Razorpay is set up).
+4. **Website:** host the root static files (`index.html`, `app.js`, `styles.css`, `effects.css`, `effects.js`, `config.js`, `assets/`) and set the live URLs in `config.js` (`onlinePayments: true` when Razorpay is set up).
 5. **Dashboard:** `cd admin-dashboard && npm run build` with `VITE_API_BASE_URL`, then host `dist/`.
 6. Set `CLIENT_URL` (backend) and `ALLOWED_ORIGINS` (AI) to the live website and dashboard URLs.
 7. Make and print the QR codes with the live website URL (`npm run qr`).

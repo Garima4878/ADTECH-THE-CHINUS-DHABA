@@ -63,7 +63,7 @@ const connectDatabase = async () => {
 };
 
 // Serves only the website's public files to the network, never .env or source code.
-const PUBLIC_FILES = new Set(['/index.html', '/app.js', '/styles.css']);
+const PUBLIC_FILES = new Set(['/index.html', '/app.js', '/styles.css', '/effects.css', '/effects.js']);
 const CONTENT_TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.jpg': 'image/jpeg', '.png': 'image/png' };
 
 const listen = (server, port) =>
