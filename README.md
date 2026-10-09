@@ -110,14 +110,21 @@ Every part has a `.env.example`. Copy it to `.env` and fill it in. **`.env` file
 
 ## Deployment checklist
 
-1. **Database:** create a MongoDB Atlas cluster (free tier) and set `MONGODB_URI`.
-2. **Backend:** deploy `server.js` (`npm start`) with the root `.env` values, then run `npm run seed` once. Health check: `/api/health`.
-3. **AI assistant:** deploy `ai-assistant/` (`npm start`) with its `.env`. Health check: `/api/ai/health`.
-4. **Website:** host the root static files (`index.html`, `app.js`, `styles.css`, `effects.css`, `effects.js`, `config.js`, `assets/`) and set the live URLs in `config.js` (`onlinePayments: true` when Razorpay is set up).
-5. **Dashboard:** `cd admin-dashboard && npm run build` with `VITE_API_BASE_URL`, then host `dist/`.
-6. Set `CLIENT_URL` (backend) and `ALLOWED_ORIGINS` (AI) to the live website and dashboard URLs.
-7. Make and print the QR codes with the live website URL (`npm run qr`).
-8. **Smoke test:** scan a QR code with a phone → order → pay in test mode → see it on the dashboard → update the status → see it on the phone.
+Free hosting: **MongoDB Atlas** (database), **Render** (backend + AI, from `render.yaml`), **Netlify** (website from `netlify.toml`, dashboard from `admin-dashboard/netlify.toml`). Secrets go only into the hosting dashboards, never into the repo.
+
+1. **Database:** MongoDB Atlas free (M0) cluster, a database user, Network Access `0.0.0.0/0`. Connection string ends in `/chinu_dhaba`.
+2. **Backend + AI:** Render → New → Blueprint → this repository. Fill in `MONGODB_URI`, `RAZORPAY_KEY_ID/SECRET`, `GEMINI_API_KEY`, `MENU_API_URL` (`https://<api>.onrender.com/api/menu`). Leave `CLIENT_URL` / `ALLOWED_ORIGINS` until step 5. Health checks: `/api/health`, `/api/ai/health`.
+3. **Seed the live database once from your PC** (Render free has no shell):
+   ```powershell
+   $env:MONGODB_URI="<atlas connection string>"; $env:SEED_ADMIN_PASSWORD="<strong password>"; npm run seed
+   ```
+4. **Website:** Netlify → import this repository (base directory: repo root). Environment variables: `CHINU_API_URL`, `CHINU_AI_URL`, `CHINU_ONLINE_PAYMENTS=true`. The build (`npm run build:website`) publishes only the website files and writes `config.js`.
+   **Dashboard:** a second Netlify site with base directory `admin-dashboard` and `VITE_API_BASE_URL=https://<api>.onrender.com/api`.
+5. On Render set `CLIENT_URL` = website URL + dashboard URL (comma-separated) and `ALLOWED_ORIGINS` = website URL.
+6. Make and print the QR codes with the live website URL (`npm run qr -- https://<website>`).
+7. **Smoke test:** scan a QR code with a phone → order → pay in test mode → see it on the dashboard → update the status → see it on the phone.
+
+Render free services sleep after ~15 minutes idle; the first request afterwards takes up to a minute.
 
 ## Status and known gaps
 

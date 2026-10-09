@@ -11,3 +11,6 @@ npm-debug.log*
 
 # Generated table QR codes (npm run qr)
 qr-codes/
+
+# Website build for static hosting (npm run build:website)
+website-dist/

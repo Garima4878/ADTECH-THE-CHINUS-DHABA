@@ -1,0 +1,11 @@
+# Netlify: customer website. Publishes only the website files (website-dist/), not the backend source.
+# Set CHINU_API_URL, CHINU_AI_URL and CHINU_ONLINE_PAYMENTS in Netlify -> Site configuration ->
+# Environment variables (see scripts/build-website.js), then redeploy.
+[build]
+  command = "node scripts/build-website.js"
+  publish = "website-dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+  # Only runtime packages: skips dev tools such as the test database download.
+  NPM_FLAGS = "--omit=dev"

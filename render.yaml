@@ -1,0 +1,47 @@
+# Render Blueprint: creates the backend API and the AI menu assistant as two free web services.
+# Render dashboard -> New -> Blueprint -> pick this repository. Values marked `sync: false` are secrets
+# or live URLs: Render asks for them once, and they never go into the repository. See README "Deployment".
+services:
+  - type: web
+    name: chinu-dhaba-api
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm install --omit=dev
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      # Website + dashboard URLs, comma-separated (fill in after they are on Netlify).
+      - key: CLIENT_URL
+        sync: false
+
+  - type: web
+    name: chinu-dhaba-ai
+    runtime: node
+    plan: free
+    region: singapore
+    rootDir: ai-assistant
+    buildCommand: npm install --omit=dev
+    startCommand: npm start
+    healthCheckPath: /api/ai/health
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-3.5-flash-lite
+      # e.g. https://chinu-dhaba-api.onrender.com/api/menu
+      - key: MENU_API_URL
+        sync: false
+      # Website URL (fill in after it is on Netlify).
+      - key: ALLOWED_ORIGINS
+        sync: false
