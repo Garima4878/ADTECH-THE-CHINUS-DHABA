@@ -1,8 +1,8 @@
 # The Chinu Family Restaurant & Dhaba — Admin Dashboard
 
-Restaurant-side admin dashboard. **This repository contains only the admin/restaurant dashboard frontend.**
-The customer-facing website (QR Scan → Table → Menu → Cart → Order → Payment → Verification → Confirmation)
-and the Node/Express backend are separate projects and are intentionally not included here.
+Restaurant-side admin dashboard (by Yuragi). It lives in the `admin-dashboard/` folder of the team repository,
+next to the customer website (repository root: `index.html` / `app.js`), the Node/Express backend (`server.js`, `src/`)
+and the AI assistant (`ai-assistant/`). It talks to the backend's `/api/admin/...` routes.
 
 No static/mock data anywhere — every screen reads from the backend API.
 
@@ -38,22 +38,23 @@ npm run typecheck
 
 ### Login
 
-The login screen is a plain form — **no authentication**. Enter any username and password and the
-dashboard opens immediately. The name is kept in `localStorage` so a refresh stays signed in, and
-**Sign out** clears it.
+Staff sign in with a real account on the backend (`POST /api/auth/login` with `{ username, password }`;
+the username field also accepts an email). The returned JWT is kept in `localStorage` and sent as
+`Authorization: Bearer ...` on every request (`src/lib/api.ts`). If the backend answers 401 (expired,
+deactivated or deleted account), the dashboard signs out. **Sign out** clears the session.
 
-The **Sign in as** dropdown picks the permission level for the session, so each role can be reviewed
-without the backend:
+The role comes from the account, not from the login form:
 
-| Option | What you can do |
+| Role | What you can do |
 | --- | --- |
-| Administrator | Everything, including Staff & Roles |
-| Manager | Orders, menu, categories, tables, payments. No staff management. |
-| Restaurant Employee | View and advance orders, read-only menu and tables. |
+| Administrator (`admin`) | Everything, including Staff & Roles |
+| Manager (`manager`) | Orders, menu, categories, tables, payments. No staff management. |
+| Restaurant Employee (backend role `staff`) | View and advance orders, mark orders paid, read-only menu and tables. |
 
-When the real backend is ready, replace `signIn` in `src/providers/AuthProvider.tsx` with a call to
-`POST /admin/auth/login` and send the returned token as an `Authorization: Bearer` header in
-`src/lib/api.ts`. No page code needs to change.
+The backend enforces the same rules, so hiding a button is not the only protection.
+
+**First admin account:** in the repository root, set `SEED_ADMIN_PASSWORD` (optionally `SEED_ADMIN_USERNAME`,
+default `admin`) in `.env` and run `npm run seed`. Then sign in and create the other staff on **Staff & Roles**.
 
 ## Screens
 
@@ -207,10 +208,10 @@ DELETE /admin/staff/:id
 
 ### Note on this repository
 
-This repository currently holds the **admin dashboard** only. The customer-facing frontend
-(QR Scan → Table → Menu → Cart → Order → Payment → Verification) and the Node/Express
-backend are separate projects and are not included here. Both apps depend on the API
-contract below, so they can be connected later without changing page code.
+The backend implements this contract in `src/routes/adminRoutes.js` and `src/controllers/adminController.js`
+(repository root). Differences from the original draft: login is the shared `POST /api/auth/login`;
+`orderNumber` is the order ID string (e.g. `ORD-...`); `Partial`/`Refunded` payments and `Takeaway`/`Delivery`
+orders are not produced yet; table status shows `Occupied` automatically while a table has an open order.
 
 ### Response envelope
 

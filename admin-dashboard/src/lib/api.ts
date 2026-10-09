@@ -1,3 +1,5 @@
+import { TOKEN_STORAGE_KEY, UNAUTHORIZED_EVENT } from "@/config";
+
 const BASE_URL = (import.meta.env.VITE_API_BASE_URL || "/api").replace(/\/$/, "");
 
 export class ApiError extends Error {
@@ -34,6 +36,8 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   const { method = "GET", body, signal } = options;
   const headers: Record<string, string> = { Accept: "application/json" };
   if (body !== undefined) headers["Content-Type"] = "application/json";
+  const token = localStorage.getItem(TOKEN_STORAGE_KEY);
+  if (token) headers.Authorization = `Bearer ${token}`;
 
   let response: Response;
   try {
@@ -58,6 +62,10 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
     } catch {
       payload = text;
     }
+  }
+
+  if (response.status === 401 && token) {
+    window.dispatchEvent(new Event(UNAUTHORIZED_EVENT));
   }
 
   if (!response.ok) {

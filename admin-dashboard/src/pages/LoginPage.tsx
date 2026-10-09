@@ -2,13 +2,6 @@ import { useState, type FormEvent } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { RESTAURANT_NAME, RESTAURANT_TAGLINE } from "@/config";
 import { useAuth } from "@/providers/AuthProvider";
-import type { Role } from "@/types";
-
-const ROLE_OPTIONS: { value: Role; label: string }[] = [
-  { value: "admin", label: "Administrator" },
-  { value: "manager", label: "Manager" },
-  { value: "employee", label: "Restaurant Employee" },
-];
 
 export default function LoginPage() {
   const { user, signIn } = useAuth();
@@ -17,22 +10,30 @@ export default function LoginPage() {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<Role>("admin");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   if (user) {
     return <Navigate to={location.state?.from ?? "/dashboard"} replace />;
   }
 
-  const onSubmit = (event: FormEvent) => {
+  // The role (admin / manager / employee) comes from the account on the backend.
+  const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
     if (!username.trim() || !password) {
       setError("Please enter both username and password.");
       return;
     }
-    signIn({ name: username.trim(), username: username.trim(), role });
-    navigate(location.state?.from ?? "/dashboard", { replace: true });
+    setSubmitting(true);
+    try {
+      await signIn(username.trim(), password);
+      navigate(location.state?.from ?? "/dashboard", { replace: true });
+    } catch (err) {
+      setError((err as Error).message || "Sign in failed. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -52,7 +53,7 @@ export default function LoginPage() {
           <div>
             <h2 className="text-lg font-bold text-stone-800">Staff sign in</h2>
             <p className="mt-0.5 text-sm text-stone-500">
-              Enter your details to open the restaurant dashboard.
+              Sign in with the staff account the restaurant admin gave you.
             </p>
           </div>
 
@@ -109,26 +110,8 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <div>
-            <label className="label" htmlFor="role">
-              Sign in as
-            </label>
-            <select
-              id="role"
-              className="input"
-              value={role}
-              onChange={(event) => setRole(event.target.value as Role)}
-            >
-              {ROLE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <button type="submit" className="btn-primary w-full">
-            Sign in to dashboard
+          <button type="submit" className="btn-primary w-full" disabled={submitting}>
+            {submitting ? "Signing in…" : "Sign in to dashboard"}
           </button>
         </form>
       </div>
