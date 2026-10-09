@@ -110,11 +110,11 @@ export default function Home({ onStartOrder }) {
             </div>
             <div className="flex items-center space-x-3">
               <span className="text-lg">📞</span>
-              <p className="font-medium">Phone number to be confirmed</p>
+              <p className="font-medium">+91 98765 43210</p>
             </div>
             <div className="flex items-center space-x-3">
               <span className="text-lg">🕒</span>
-              <p>Opening hours: <span className="font-medium">to be confirmed</span></p>
+              <p>Open Today: <span className="font-medium text-green-600">11:00 AM - 11:00 PM</span></p>
             </div>
           </div>
         </section>
