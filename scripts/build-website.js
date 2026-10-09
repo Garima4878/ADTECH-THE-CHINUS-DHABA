@@ -4,6 +4,7 @@
 //   CHINU_API_URL           backend URL, e.g. https://chinu-dhaba-api.onrender.com
 //   CHINU_AI_URL            AI assistant URL, e.g. https://chinu-dhaba-ai.onrender.com
 //   CHINU_ONLINE_PAYMENTS   "true" to offer "Pay online" (needs Razorpay keys on the backend)
+//   CHINU_ADMIN_URL         admin dashboard URL: adds a "Restaurant staff" link to the footer
 //
 //   npm run build:website
 const fs = require('fs');
@@ -26,6 +27,7 @@ const config = {
   apiBaseUrl: url('CHINU_API_URL'),
   onlinePayments: String(process.env.CHINU_ONLINE_PAYMENTS || '').toLowerCase() === 'true',
   aiAssistantUrl: url('CHINU_AI_URL'),
+  adminUrl: url('CHINU_ADMIN_URL'),
 };
 
 fs.rmSync(OUT, { recursive: true, force: true });
@@ -41,3 +43,4 @@ console.log(`Website built in ${path.relative(ROOT, OUT)}/`);
 console.log(`  backend: ${config.apiBaseUrl || '(none: demo mode, browser-only orders)'}`);
 console.log(`  AI chat: ${config.aiAssistantUrl || '(off)'}`);
 console.log(`  online payment: ${config.onlinePayments ? 'on' : 'off'}`);
+console.log(`  staff link: ${config.adminUrl || '(off)'}`);
