@@ -106,15 +106,15 @@ export default function Home({ onStartOrder }) {
           <div className="text-sm text-gray-600 space-y-3">
             <div className="flex items-start space-x-3">
               <span className="text-lg">📍</span>
-              <p>Main Highway Road, Multai<br/><span className="text-xs text-gray-400">Near the Toll Plaza</span></p>
+              <p>Multai, Madhya Pradesh<br/><span className="text-xs text-gray-400">Exact address to be confirmed</span></p>
             </div>
             <div className="flex items-center space-x-3">
               <span className="text-lg">📞</span>
-              <p className="font-medium">+91 98765 43210</p>
+              <p className="font-medium">Phone number to be confirmed</p>
             </div>
             <div className="flex items-center space-x-3">
               <span className="text-lg">🕒</span>
-              <p>Open Today: <span className="font-medium text-green-600">11:00 AM - 11:00 PM</span></p>
+              <p>Opening hours: <span className="font-medium">to be confirmed</span></p>
             </div>
           </div>
         </section>
