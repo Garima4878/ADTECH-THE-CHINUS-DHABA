@@ -1,5 +1,5 @@
 // Visual effects for the customer website: hero entrance, steam, tilt, rotating seal, scrolling ticker,
-// scroll reveals, fly-to-cart and a count-up. Purely decorative: the site works the same without this
+// scroll reveals, cooking videos that play while on screen, fly-to-cart and a count-up. Purely decorative: the site works the same without this
 // file (remove it and effects.css from index.html to switch everything off). Styles live in effects.css.
 (() => {
   "use strict";
@@ -108,6 +108,7 @@
   };
   $$(".section-heading, .menu-toolbar, .story-photo, .story-content").forEach((element) => reveal(element));
   $$(".visit-card").forEach((card, i) => reveal(card, i * 120));
+  $$(".reel-card").forEach((card, i) => reveal(card, i * 170));
 
   // Menu cards are created by app.js (and again when a category tab is picked).
   const grid = $("#menu-grid");
@@ -183,5 +184,68 @@
       }
       last = now;
     }).observe(count, { childList: true, characterData: true, subtree: true });
+  }
+
+  // Cooking videos (hero + kitchen reel): each loads as it nears the screen and plays only while visible,
+  // so phones never download or run clips nobody is looking at. Data-saver visitors keep the still posters.
+  const videos = $$("video[data-src]");
+  const saveData = navigator.connection && navigator.connection.saveData;
+  if (videos.length && !saveData && "IntersectionObserver" in window) {
+    const load = (video) => {
+      if (video.getAttribute("src")) return;
+      video.src = video.dataset.src;
+      video.load();
+    };
+    const preload = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        load(entry.target);
+        preload.unobserve(entry.target);
+      });
+    }, { rootMargin: "600px 0px" });
+    const playWhenSeen = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const video = entry.target;
+        if (entry.isIntersecting) {
+          load(video);
+          const playing = video.play();
+          if (playing) playing.catch(() => {});
+        } else {
+          video.pause();
+        }
+      });
+    }, { threshold: 0.3 });
+    videos.forEach((video) => {
+      video.muted = true; // required for autoplay on phones
+      const frame = video.closest(".reel-card, .hero-photo");
+      const bar = frame && $(".reel-progress", frame);
+      video.addEventListener("playing", () => frame && frame.classList.add("is-playing"));
+      video.addEventListener("pause", () => frame && frame.classList.remove("is-playing"));
+      if (bar) video.addEventListener("timeupdate", () => bar.style.setProperty("--p", (video.currentTime / (video.duration || 1)).toFixed(3)));
+      preload.observe(video);
+      playWhenSeen.observe(video);
+    });
+  }
+
+  // Reel parallax: the outer cards drift up and the middle one down a little while the section scrolls by.
+  const reelCards = $$(".reel-card");
+  const wide = window.matchMedia("(min-width: 901px)");
+  if (reelCards.length) {
+    const speeds = [-0.06, 0.05, -0.06];
+    let ticking = false;
+    const update = () => {
+      ticking = false;
+      const middle = window.innerHeight / 2;
+      reelCards.forEach((card, i) => {
+        if (!wide.matches) { card.style.removeProperty("--py"); return; }
+        const box = card.getBoundingClientRect();
+        const offset = (box.top + box.height / 2 - middle) * (speeds[i % speeds.length]);
+        card.style.setProperty("--py", `${offset.toFixed(1)}px`);
+      });
+    };
+    const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    update();
   }
 })();
