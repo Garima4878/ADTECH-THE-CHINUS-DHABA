@@ -1,166 +1,82 @@
-# Chinu Family Restaurant & Dhaba
+# The Chinu Family Restaurant & Dhaba: QR table ordering
 
-Responsive restaurant site and QR-ordering frontend prototype. Open `index.html` in a browser, or serve this folder with any static web server. The sample menu and browser-only orders are labelled as demo mode; they are not a live restaurant menu or payment service.
+Digital ordering for **The Chinu Family Restaurant & Dhaba**, Multai (Madhya Pradesh), "The Nonveg King of Multai".
+Customers scan the QR code on their table, browse the menu, ask the AI menu assistant, order and pay from their phone.
+Staff see and update the orders on the restaurant dashboard, and the customer sees the status change.
 
-## QR table ordering
-
-Give each table a unique URL such as `https://restaurant.example/?table=T01` and print that URL into its QR code. The frontend recognizes `table`, `tableId`, and `t` query parameters, displays the table, and sends its identifier with the order. Keep table IDs stable and validate them on the server.
-
-## Backend connection
-
-Set `apiBaseUrl` and `onlinePayments` in `config.js` for the deployment. For example:
-
-```js
-window.CHINU_CONFIG = {
-  apiBaseUrl: "https://api.example.com",
-  onlinePayments: true
-};
+```
+QR scan → table identified → menu → cart → order → payment → payment verification
+        → order confirmation → restaurant dashboard → order status update (customer sees it)
 ```
 
-To show the AI menu chat button, also set `aiAssistantUrl` to the AI service (see `ai-assistant/README.md`), e.g. `aiAssistantUrl: "http://localhost:4001"`. "Add" in the chat adds the dish to this cart.
+Built by the AD Tech Enterprises intern team.
 
-Only use a public API origin here. Do not put payment gateway secrets, private API credentials, or privileged staff tokens in frontend code. Staff endpoints must enforce authentication and authorization on the server; this UI does not provide staff authentication.
+## The four parts
 
-The frontend expects these JSON contracts (adapt the frontend or the backend to the team's agreed contract before deployment):
+| Part | Folder | What it is | Tech | Details |
+|---|---|---|---|---|
+| **Customer website** | repository root: `index.html`, `app.js`, `styles.css`, `config.js`, `assets/` | Menu, cart, checkout, online payment, order tracking. Phone-first. | HTML, CSS, JavaScript (no build step) | [docs/WEBSITE.md](docs/WEBSITE.md) |
+| **Backend API** | `server.js`, `src/`, `scripts/`, `test/` | Menu, tables, orders, payments (Razorpay), staff login, admin API | Node.js, Express, MongoDB, Razorpay | [docs/BACKEND.md](docs/BACKEND.md) |
+| **AI menu assistant** | `ai-assistant/` | Chat button on the website: answers menu questions (English/Hindi/Hinglish) and recommends dishes, only from the real menu | Node.js, Express, Google Gemini | [ai-assistant/README.md](ai-assistant/README.md) |
+| **Restaurant admin dashboard** | `admin-dashboard/` | Staff login, live orders, kitchen screen, menu, tables, payments, staff accounts | React, TypeScript, Vite | [admin-dashboard/README.md](admin-dashboard/README.md) |
 
-- `GET /api/menu` returns an array of items or `{ "items": [...] }`. Each item has `id`, `name`, numeric `price`, optional `description`, `category`, `tag`, `imageUrl` (or `image`), and boolean `available`.
-- `POST /api/orders` receives `{ tableId, channel, customer: { name, phone, note }, paymentMethod, items: [{ menuItemId, quantity }], clientSubtotal }`. The server must recheck item availability and calculate the authoritative total; `clientSubtotal` is informational only. Return `{ id, total, status }` or `{ orderId, total, status }`.
-- `GET /api/orders/{id}` returns `{ id, total, status }` for customer status polling. Supported statuses are `Pending`, `Accepted`, `Preparing`, `Ready`, and `Served` or `Completed`.
-- With online payments enabled, `POST /api/payments/initiate` receives `{ orderId, returnUrl }` and returns `{ checkoutUrl }`. The backend creates the gateway session and keeps all private credentials server-side.
-- The payment return URL includes `payment_return=1` and `orderId`. The frontend calls `POST /api/payments/verify` with `{ orderId, paymentReference }`; the backend must verify with the payment provider and return `{ paymentStatus, orderStatus }`. Never trust a browser redirect as proof of payment.
-- The staff board uses `GET /api/staff/orders` returning an array or `{ orders: [...] }`, and `PATCH /api/staff/orders/{id}/status` with `{ status }`. Protect these routes with backend staff authorization.
+Also in the repository: `assets/photos/` (the restaurant's original photos), `assets/menu/` and `assets/site/` (photos used on the website, cut from those originals), and `prototypes/aadya-react-frontend/` (an early React prototype of the website, kept for reference).
 
-API requests send cookies (`credentials: include`) and JSON. Configure appropriate CORS and secure session-cookie settings on the API. API/network failures are surfaced in the UI; the frontend does not silently substitute demo data when a live API is configured.
+### How they connect
 
-## Demo and known integration requirements
-
-Without an API origin, the page uses the six example dishes from the supplied visual reference, stores cart/orders in browser local storage, and lets the prototype staff board change demo statuses. Online payment is intentionally unavailable in demo mode. Replace the sample menu with the restaurant's approved menu and actual availability before launch.
-
-The deployment team still needs to supply the API origin/contracts, approved menu data and photos, unique table QR URLs, payment gateway return/verification behavior, and authenticated staff API. The phone number, address, opening hours, menu content, and images shown here are reference/demo content and should be confirmed before production.
-# Chinu Family Restaurant & Dhaba Backend
-
-This repository contains the backend for the Chinu Family Restaurant & Dhaba project. It is designed to power the restaurant menu, QR-based table ordering, customer orders, administrative order management, payment creation, and server-side verification.
-
-## Project Overview
-
-The system supports:
-
-- Menu and category APIs
-- QR/table validation for dine-in ordering
-- Server-side order creation and total calculation
-- Order status lifecycle management
-- Razorpay payment initiation and verification
-- Authentication and authorization for admin/staff routes
-- MongoDB-backed persistence for menu, orders, tables, and payments
-
-## Tech Stack
-
-- Node.js
-- Express.js
-- MongoDB + Mongoose
-- JWT authentication
-- Express Validator
-- Razorpay integration
-- Helmet + CORS
-
-## Architecture
-
-- `server.js` starts the server and connects to MongoDB
-- `src/app.js` configures the Express app and routes
-- `src/config` stores DB and payment configuration
-- `src/models` contains the MongoDB schemas
-- `src/controllers` contains business logic
-- `src/routes` contains route definitions
-- `src/middleware` contains validation and auth/error handling
-- `src/utils` contains response and API helpers
-
-## Folder Structure
-
-```text
-.
-├── README.md
-├── .env.example
-├── .gitignore
-├── package.json
-├── server.js
-├── src/
-│   ├── app.js
-│   ├── config/
-│   │   ├── db.js
-│   │   └── razorpay.js
-│   ├── controllers/
-│   │   ├── authController.js
-│   │   ├── categoryController.js
-│   │   ├── menuController.js
-│   │   ├── orderController.js
-│   │   ├── paymentController.js
-│   │   └── tableController.js
-│   ├── middleware/
-│   │   ├── authMiddleware.js
-│   │   ├── errorMiddleware.js
-│   │   └── validate.js
-│   ├── models/
-│   │   ├── Category.js
-│   │   ├── MenuItem.js
-│   │   ├── Order.js
-│   │   ├── Payment.js
-│   │   ├── Table.js
-│   │   └── User.js
-│   ├── routes/
-│   │   ├── authRoutes.js
-│   │   ├── categoryRoutes.js
-│   │   ├── menuRoutes.js
-│   │   ├── orderRoutes.js
-│   │   ├── paymentRoutes.js
-│   │   └── tableRoutes.js
-│   └── utils/
-│       ├── ApiError.js
-│       └── apiResponse.js
-└── test/
-    └── app.test.js
+```
+ Customer's phone                                   Restaurant staff
+ ┌──────────────────────┐                          ┌──────────────────────────┐
+ │ Customer website     │                          │ Admin dashboard          │
+ │ (?table=T05 from QR) │                          │ (login: admin/manager/   │
+ │   └─ AI chat button ─┼──► AI assistant          │  employee)               │
+ └──────────┬───────────┘     (ai-assistant/)      └────────────┬─────────────┘
+            │ /api/menu, /api/orders,   │ reads /api/menu          │ /api/admin/...
+            │ /api/payments             ▼                          │
+            └─────────────────────►  Backend API  ◄────────────────┘
+                                     (server.js) ──► MongoDB
+                                         └────────► Razorpay (payment links)
 ```
 
-## Environment Variables
-
-Use the variables shown in `.env.example` and fill them with your own values:
-
-```env
-PORT=5000
-NODE_ENV=development
-MONGODB_URI=mongodb://127.0.0.1:27017/chinu_dhaba
-CLIENT_URL=http://localhost:3000
-JWT_SECRET=your_jwt_secret_here
-RAZORPAY_KEY_ID=your_razorpay_key_id
-RAZORPAY_KEY_SECRET=your_razorpay_key_secret
-```
-
-Do not commit real secrets. The repository already keeps `.env` ignored via `.gitignore`.
-
-## Installation
-
-```bash
-npm install
-cp .env.example .env
-npm run dev
-```
+- The **menu** (17 dishes, names and prices) comes from one file, `ai-assistant/data/restaurant-knowledge-base.json`. `npm run seed` loads it into the database, and the website and the AI read the same dishes from the backend.
+- The **table number** comes from the QR link (`?table=T05`) and travels with the order to the dashboard.
+- **Totals and payments are checked on the server**: the browser's prices are never trusted, and Razorpay is asked directly whether an order was paid.
 
 ## Run everything on one PC (`npm run demo`)
 
-For local testing and demos, one command starts the backend, the customer website, the AI menu chat and the admin dashboard:
+Needs Node.js 20 or newer. No database install needed.
 
 ```bash
 npm install
 (cd ai-assistant && npm install)
 (cd admin-dashboard && npm install)
+cp .env.example .env          # optional: add Razorpay test keys, see below
 npm run demo
 ```
 
-It prints the links:
+The demo prints the links:
 
-- Customer website: `http://localhost:8080/?table=T05`. It also works from a phone on the same Wi-Fi via the PC's address shown in the output. If the phone can't connect, allow Node.js through Windows Firewall for private networks.
-- Admin dashboard: `http://localhost:5173`, login `admin` with `SEED_ADMIN_PASSWORD` from `.env` (default `chinu-admin-2026`)
+| What | Link |
+|---|---|
+| Customer website (table 5) | http://localhost:8080/?table=T05 |
+| Same, from a phone on the same Wi-Fi | `http://<PC's Wi-Fi address>:8080/?table=T05` (printed by the demo) |
+| Admin dashboard | http://localhost:5173, login `admin` / `SEED_ADMIN_PASSWORD` from `.env` (default `chinu-admin-2026`) |
+| Backend health check | http://localhost:5000/api/health |
 
-The database is the MongoDB in `MONGODB_URI` if it's running, otherwise a temporary in-memory one that is cleared when the demo stops. Online payment is switched on when Razorpay **test** keys are in `.env`. Pay with UPI ID `success@razorpay` (or `failure@razorpay` to test a failed payment). The website server only serves `index.html`, `app.js`, `styles.css` and `assets/`, never `.env` or source files.
+- **Database:** the MongoDB in `MONGODB_URI` if it's running, otherwise a temporary in-memory one. Orders are cleared when the demo stops.
+- **AI chat:** works without a key (rule-based answers). Add `GEMINI_API_KEY` to `ai-assistant/.env` for AI answers.
+- **Online payment:** on when Razorpay **test** keys (`RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`) are in `.env`. Pay with UPI ID `success@razorpay` (or `failure@razorpay` to try a failed payment). Test mode never moves real money.
+- If a phone can't open the site, allow Node.js through Windows Firewall for private networks.
+- Stop everything with **Ctrl+C**.
+
+## Run the parts separately (development)
+
+| Part | Commands | Notes |
+|---|---|---|
+| Backend | `npm install` → `cp .env.example .env` → `npm run seed` → `npm run dev` | needs MongoDB (`MONGODB_URI`), port 5000 |
+| Website | serve the repository root with any static server, e.g. `npx serve .` | set `apiBaseUrl`, `onlinePayments` and `aiAssistantUrl` in `config.js`. With an empty `apiBaseUrl` it runs in demo mode (browser-only orders). |
+| AI assistant | `cd ai-assistant` → `npm install` → `cp .env.example .env` → `npm start` | port 4001. Set `MENU_API_URL=http://localhost:5000/api/menu` for live prices and availability. |
+| Admin dashboard | `cd admin-dashboard` → `npm install` → `npm run dev` | port 5173, proxies `/api` to `VITE_PROXY_TARGET` (default `http://localhost:5000`) |
 
 ## Table QR codes (`npm run qr`)
 
@@ -169,160 +85,43 @@ npm run qr -- https://<website-address>             # tables T01-T10
 npm run qr -- https://<website-address> --tables 12
 ```
 
-This creates `qr-codes/T01.png`, `qr-codes/T02.png` and so on, plus `qr-codes/print.html`: cards with the restaurant name, "Scan to see the menu & order" and the table number, ready to print on A4. Each code opens `https://<website-address>/?table=T01` (etc.), matching the tables from `npm run seed`. Make them after the website is deployed, and scan one with a phone before printing. For phone testing with `npm run demo`, use the Wi-Fi address it prints, e.g. `npm run qr -- http://192.168.1.5:8080`. The `qr-codes/` folder is git-ignored.
+This creates `qr-codes/T01.png`, `qr-codes/T02.png` and so on, plus `qr-codes/print.html`: A4 cut-out cards with the restaurant name, "Scan to see the menu & order" and the table number. Each code opens `https://<website-address>/?table=T01` (etc.), matching the tables created by `npm run seed`. Make them once the website is online, and scan one with a phone before printing. For phone testing with `npm run demo`, use the Wi-Fi address it prints. `qr-codes/` is git-ignored.
 
-## MongoDB Setup
-
-1. Install MongoDB locally or use a MongoDB Atlas cluster.
-2. Set `MONGODB_URI` in the `.env` file.
-3. Ensure the server is reachable before starting the app.
-
-## Running the Backend
+## Tests
 
 ```bash
-npm run dev
+npm test                                   # backend + AI assistant (62 tests, in-memory MongoDB, fake Razorpay)
+(cd admin-dashboard && npm run typecheck && npm run build)
 ```
 
-The API is available at:
+## Configuration and secrets
 
-```text
-http://localhost:5000/api
-```
+Every part has a `.env.example`. Copy it to `.env` and fill it in. **`.env` files are git-ignored: never commit keys or passwords, and never paste them into chats.**
 
-## API Documentation
+| Setting | Where | Purpose |
+|---|---|---|
+| `MONGODB_URI`, `JWT_SECRET` | root `.env` | database, staff login tokens |
+| `CLIENT_URL` | root `.env` | website + dashboard URLs (comma-separated): CORS and allowed payment return pages |
+| `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` | root `.env` | online payment (test keys for now) |
+| `SEED_ADMIN_USERNAME`, `SEED_ADMIN_PASSWORD` | root `.env` | first dashboard admin, created by `npm run seed` |
+| `GEMINI_API_KEY`, `MENU_API_URL`, `ALLOWED_ORIGINS` | `ai-assistant/.env` | AI answers, live menu, website URL |
+| `apiBaseUrl`, `onlinePayments`, `aiAssistantUrl` | `config.js` | where the website finds the backend and the AI |
+| `VITE_API_BASE_URL` | `admin-dashboard/.env` | backend `/api` URL for the built dashboard |
 
-### Authentication
+## Deployment checklist
 
-- `POST /api/auth/register` — Create admin/staff user
-- `POST /api/auth/login` — Login and receive JWT token
-- `GET /api/auth/me` — Fetch current authenticated user
+1. **Database:** create a MongoDB Atlas cluster (free tier) and set `MONGODB_URI`.
+2. **Backend:** deploy `server.js` (`npm start`) with the root `.env` values, then run `npm run seed` once. Health check: `/api/health`.
+3. **AI assistant:** deploy `ai-assistant/` (`npm start`) with its `.env`. Health check: `/api/ai/health`.
+4. **Website:** host the root static files (`index.html`, `app.js`, `styles.css`, `config.js`, `assets/`) and set the live URLs in `config.js` (`onlinePayments: true` when Razorpay is set up).
+5. **Dashboard:** `cd admin-dashboard && npm run build` with `VITE_API_BASE_URL`, then host `dist/`.
+6. Set `CLIENT_URL` (backend) and `ALLOWED_ORIGINS` (AI) to the live website and dashboard URLs.
+7. Make and print the QR codes with the live website URL (`npm run qr`).
+8. **Smoke test:** scan a QR code with a phone → order → pay in test mode → see it on the dashboard → update the status → see it on the phone.
 
-### Categories
+## Status and known gaps
 
-- `GET /api/categories` — Fetch all categories
-- `GET /api/categories/:id` — Fetch a single category
-- `POST /api/categories` — Create a category (admin/staff only)
-- `PUT /api/categories/:id` — Update a category (admin/staff only)
-- `DELETE /api/categories/:id` — Delete a category (admin/staff only)
-
-### Menu
-
-- `GET /api/menu` — Fetch menu items
-- `GET /api/menu/:id` — Fetch single menu item
-- `POST /api/menu` — Create a menu item (admin/staff only)
-- `PUT /api/menu/:id` — Update a menu item (admin/staff only)
-- `PATCH /api/menu/:id/availability` — Toggle item availability (admin/staff only)
-- `DELETE /api/menu/:id` — Delete a menu item (admin/staff only)
-
-### Tables and QR Validation
-
-- `GET /api/tables` — Fetch all tables (admin/staff only)
-- `GET /api/tables/validate/:tableId` — Validate a QR/table ID
-- `POST /api/tables` — Create a table (admin/staff only)
-- `PUT /api/tables/:id` — Update a table (admin/staff only)
-
-### Orders
-
-- `POST /api/orders` — Create a customer order for a validated table (items as `itemId` or the website's `menuItemId`)
-- `GET /api/orders` — Fetch all orders (admin/staff only)
-- `GET /api/orders/pending` — Fetch pending orders
-- `GET /api/orders/ORD-...` — Customer order tracking by Order ID, no login (status, total, payment status only)
-- `GET /api/orders/:id` — Fetch a single order by MongoDB id (admin/staff only)
-- `GET /api/orders/table/:tableId` — Fetch orders for a table
-- `PATCH /api/orders/:id/status` — Update order status (admin/staff only)
-
-### Payments
-
-- `POST /api/payments/create` — Create Razorpay order from an order total (Razorpay Checkout popup)
-- `POST /api/payments/initiate` — `{ orderId, returnUrl }` → `{ checkoutUrl }`: a Razorpay Payment Link for the server-side order total (hosted checkout used by the customer website). `returnUrl` must be on a `CLIENT_URL` origin.
-- `POST /api/payments/verify` — With `signature`: verifies the Razorpay Checkout signature. With only `{ orderId }`: asks Razorpay for the Payment Link status and marks the order paid only if the full amount was captured.
-- `GET /api/payments/order/:orderId` — Fetch payment details (admin/staff only)
-
-### Customer website compatibility
-
-The customer website (`index.html` / `app.js`) reads a flat JSON shape. These responses keep the usual `{ success, message, data }` and add top-level fields for it:
-
-- `GET /api/menu` adds `items: [{ id, name, description, price, category, imageUrl, available }]`
-- `POST /api/orders` and `GET /api/orders/ORD-...` add `{ orderId, status, total, subtotal, tax, paymentStatus, tableId, createdAt }`, with `Served/Completed` shown as `Served`
-- `POST /api/payments/initiate` adds `checkoutUrl`; `POST /api/payments/verify` adds `{ paymentStatus, orderStatus }`
-
-The website's own "Staff board" button (demo only) calls `/api/staff/orders` without a login and is not served. Restaurant staff use the admin dashboard below.
-
-### Admin dashboard API (`/api/admin`)
-
-Used by the restaurant dashboard in `admin-dashboard/` (contract in `admin-dashboard/README.md`). Every route needs a staff login: `POST /api/auth/login` with `{ username, password }` (or `{ email, password }`) returns a JWT for `Authorization: Bearer ...`. Roles are enforced by the server:
-
-| Routes | staff (dashboard "employee") | manager | admin |
-|---|:---:|:---:|:---:|
-| `GET /dashboard/stats`, `GET /orders`, `GET /orders/:id` | ✅ | ✅ | ✅ |
-| `PATCH /orders/:id/status` (advance), `PATCH /orders/:id/payment` (mark paid at the counter) | ✅ | ✅ | ✅ |
-| Cancel an order (only before Preparing) | ❌ | ✅ | ✅ |
-| `GET /menu/items`, `GET /menu/categories`, `GET /tables` | ✅ | ✅ | ✅ |
-| Create/edit/delete menu items, categories and tables; table floor status | ❌ | ✅ | ✅ |
-| `GET /payments` | ❌ | ✅ | ✅ |
-| `/staff` (create, edit, deactivate staff accounts) | ❌ | ❌ | ✅ |
-
-- Status changes from the dashboard and the staff API are written to the order's `statusHistory` (who and when), and customers see them on the website's order tracking.
-- Safe deletes: dishes that appear in orders, categories with dishes, and tables with orders can't be deleted. Mark them unavailable or inactive instead.
-- Admins can't deactivate, demote or delete their own account.
-- `POST /api/auth/register` is **admin only**. It used to be public and gave every new account the admin role.
-
-### Seed data
-
-```bash
-npm run seed
-```
-
-Loads the 17 dishes and 6 categories from `ai-assistant/data/restaurant-knowledge-base.json` (the same menu the website and AI use) and tables `T01`–`T10` (`SEED_TABLES=15` for more). QR link for a table: `https://<website>/?table=T01`. Set `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` to also create an admin login. Running it again updates the same records.
-
-## QR Table Ordering Flow
-
-1. A QR code contains a table identifier.
-2. The frontend sends the table ID to `GET /api/tables/validate/:tableId`.
-3. The backend validates it against the Table collection.
-4. The customer views the menu for that table.
-5. The customer creates an order using the table ID.
-6. The server validates item availability, price, and quantity.
-7. The total is recalculated server-side.
-
-## Order Status Flow
-
-```text
-Pending -> Accepted -> Preparing -> Ready -> Served/Completed
-                      \-> Cancelled
-```
-
-## Payment Flow
-
-1. Customer creates an order.
-2. Backend creates a Razorpay order for the exact total.
-3. Client completes payment on the gateway.
-4. Server verifies the payment signature securely.
-5. Order is marked as `Paid` only after verification succeeds.
-
-## Testing Instructions
-
-```bash
-npm test
-```
-
-- `test/app.test.js`: app boots, health endpoint, validation errors
-- `test/website-compat.test.js`: seed, menu, orders, customer tracking, Payment Link initiate/verify, CORS.
-- `test/admin-dashboard.test.js`: staff login, roles, dashboard orders/status/history, counter payments, stats, menu, categories, tables, staff accounts.
-
-The database tests use an in-memory MongoDB (`mongodb-memory-server`, downloaded on first run) and a fake Razorpay client, so no database server or payment keys are needed.
-
-For a live end-to-end run, ensure MongoDB is running, the `.env` file is configured, and run `npm run seed`.
-
-## Deployment Instructions
-
-- Set all environment variables in the deployment environment.
-- Ensure the app uses `PORT` from environment values.
-- Set `CLIENT_URL` to the website and admin dashboard URLs (comma-separated). It controls CORS with cookies and which pages payment can return to. If it is empty, any origin is accepted (local development only).
-- Keep secrets in deployment secret stores, not in source control.
-
-## Known Limitations
-
-- This project is intentionally backend-focused and does not include a frontend redesign.
-- Full order/payment flow validation depends on a working MongoDB instance and valid Razorpay credentials.
-- Payment verification is implemented on the backend and must not be trusted from the client.
+- **Prices:** Veg Thali ₹100 is from the restaurant's banner. The other 16 prices are team estimates until the restaurant confirms them.
+- **Contact details:** the opening hours and phone number on the website are placeholders. The exact address isn't known yet.
+- **Payments:** Razorpay **test mode** only. Live payments need the restaurant's own Razorpay account.
+- **Order types:** dine-in only. Takeaway/delivery and partial/refunded payments appear in the dashboard UI but aren't produced yet.
