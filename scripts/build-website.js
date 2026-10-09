@@ -13,7 +13,7 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 const OUT = path.join(ROOT, 'website-dist');
 const FILES = ['index.html', 'app.js', 'styles.css', 'effects.css', 'effects.js'];
-const FOLDERS = ['assets/menu', 'assets/site'];
+const FOLDERS = ['assets/menu', 'assets/site', 'assets/video'];
 
 const url = (name) => {
   const value = String(process.env[name] || '').trim().replace(/\/+$/, '');
