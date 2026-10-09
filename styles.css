@@ -193,7 +193,9 @@ h2 { margin: 0; font-size: clamp(36px, 4vw, 53px); line-height: 1.1; letter-spac
 .site-footer { min-height: 160px; display: flex; align-items: center; gap: 20px; padding: 35px clamp(22px, 6vw, 88px); border-top: 1px solid var(--line); }
 .site-footer p { margin: 0; font: 600 15px/1.4 var(--serif); }
 .site-footer p em { color: var(--gold); }
-.site-footer > a { margin-left: auto; color: var(--muted); font-size: 13px; }
+.footer-links { margin-left: auto; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px 22px; }
+.footer-links a { color: var(--muted); font-size: 13px; }
+.footer-links .admin-link { color: var(--gold); }
 
 .drawer-backdrop { position: fixed; z-index: 20; inset: 0; background: rgba(0,0,0,.64); }
 .cart-drawer { position: fixed; z-index: 21; top: 0; right: 0; bottom: 0; width: min(460px, 100%); display: flex; flex-direction: column; padding: 27px; background: var(--panel); transform: translateX(101%); transition: transform .25s ease, background-color .25s ease; }

@@ -118,7 +118,7 @@ Free hosting: **MongoDB Atlas** (database), **Render** (backend + AI, from `rend
    ```powershell
    $env:MONGODB_URI="<atlas connection string>"; $env:SEED_ADMIN_PASSWORD="<strong password>"; npm run seed
    ```
-4. **Website:** Netlify → import this repository (base directory: repo root). Environment variables: `CHINU_API_URL`, `CHINU_AI_URL`, `CHINU_ONLINE_PAYMENTS=true`. The build (`npm run build:website`) publishes only the website files and writes `config.js`.
+4. **Website:** Netlify → import this repository (base directory: repo root). Environment variables: `CHINU_API_URL`, `CHINU_AI_URL`, `CHINU_ONLINE_PAYMENTS=true`, and optionally `CHINU_ADMIN_URL` (dashboard URL: adds a "Restaurant staff" link to the footer). The build (`npm run build:website`) publishes only the website files and writes `config.js`.
    **Dashboard:** a second Netlify site with base directory `admin-dashboard` and `VITE_API_BASE_URL=https://<api>.onrender.com/api`.
 5. On Render set `CLIENT_URL` = website URL + dashboard URL (comma-separated) and `ALLOWED_ORIGINS` = website URL.
 6. Make and print the QR codes with the live website URL (`npm run qr -- https://<website>`).

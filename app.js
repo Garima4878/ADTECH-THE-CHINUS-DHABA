@@ -1085,6 +1085,13 @@
   // The browser-only staff board is for demo mode. With a live backend, staff use the admin dashboard.
   $("#staff-open").hidden = Boolean(API_BASE);
 
+  // Footer link to the restaurant's admin dashboard, shown only when config.js sets adminUrl.
+  const ADMIN_URL = String(CONFIG.adminUrl || "");
+  if (/^https?:\/\//.test(ADMIN_URL)) {
+    $("#admin-link").href = ADMIN_URL;
+    $("#admin-link").hidden = false;
+  }
+
   // AI menu assistant chat button (ai-assistant/). Loads only when config.js sets aiAssistantUrl.
   const AI_ASSISTANT_URL = String(CONFIG.aiAssistantUrl || "").replace(/\/+$/, "");
   if (AI_ASSISTANT_URL) {
