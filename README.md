@@ -17,6 +17,8 @@ window.CHINU_CONFIG = {
 };
 ```
 
+To show the AI menu chat button, also set `aiAssistantUrl` to the AI service (see `ai-assistant/README.md`), e.g. `aiAssistantUrl: "http://localhost:4001"`. "Add" in the chat adds the dish to this cart.
+
 Only use a public API origin here. Do not put payment gateway secrets, private API credentials, or privileged staff tokens in frontend code. Staff endpoints must enforce authentication and authorization on the server; this UI does not provide staff authentication.
 
 The frontend expects these JSON contracts (adapt the frontend or the backend to the team's agreed contract before deployment):
