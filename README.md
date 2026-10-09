@@ -196,18 +196,38 @@ http://localhost:5000/api
 
 ### Orders
 
-- `POST /api/orders` — Create a customer order for a validated table
+- `POST /api/orders` — Create a customer order for a validated table (items as `itemId` or the website's `menuItemId`)
 - `GET /api/orders` — Fetch all orders (admin/staff only)
 - `GET /api/orders/pending` — Fetch pending orders
-- `GET /api/orders/:id` — Fetch a single order
+- `GET /api/orders/ORD-...` — Customer order tracking by Order ID, no login (status, total, payment status only)
+- `GET /api/orders/:id` — Fetch a single order by MongoDB id (admin/staff only)
 - `GET /api/orders/table/:tableId` — Fetch orders for a table
 - `PATCH /api/orders/:id/status` — Update order status (admin/staff only)
 
 ### Payments
 
-- `POST /api/payments/create` — Create Razorpay order from an order total
-- `POST /api/payments/verify` — Verify gateway signature on the backend
+- `POST /api/payments/create` — Create Razorpay order from an order total (Razorpay Checkout popup)
+- `POST /api/payments/initiate` — `{ orderId, returnUrl }` → `{ checkoutUrl }`: a Razorpay Payment Link for the server-side order total (hosted checkout used by the customer website). `returnUrl` must be on a `CLIENT_URL` origin.
+- `POST /api/payments/verify` — With `signature`: verifies the Razorpay Checkout signature. With only `{ orderId }`: asks Razorpay for the Payment Link status and marks the order paid only if the full amount was captured.
 - `GET /api/payments/order/:orderId` — Fetch payment details (admin/staff only)
+
+### Customer website compatibility
+
+The customer website (`index.html` / `app.js`) reads a flat JSON shape. These responses keep the usual `{ success, message, data }` and add top-level fields for it:
+
+- `GET /api/menu` adds `items: [{ id, name, description, price, category, imageUrl, available }]`
+- `POST /api/orders` and `GET /api/orders/ORD-...` add `{ orderId, status, total, subtotal, tax, paymentStatus, tableId, createdAt }`, with `Served/Completed` shown as `Served`
+- `POST /api/payments/initiate` adds `checkoutUrl`; `POST /api/payments/verify` adds `{ paymentStatus, orderStatus }`
+
+Not covered yet: the website's staff board calls `/api/staff/orders` without a login. Staff routes here need a JWT (`Authorization: Bearer ...` from `/api/auth/login`).
+
+### Seed data
+
+```bash
+npm run seed
+```
+
+Loads the 17 dishes and 6 categories from `ai-assistant/data/restaurant-knowledge-base.json` (the same menu the website and AI use) and tables `T01`–`T10` (`SEED_TABLES=15` for more). QR link for a table: `https://<website>/?table=T01`. Set `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` to also create an admin login. Running it again updates the same records.
 
 ## QR Table Ordering Flow
 
@@ -236,27 +256,20 @@ Pending -> Accepted -> Preparing -> Ready -> Served/Completed
 
 ## Testing Instructions
 
-This environment does not have a running MongoDB instance by default, so database-backed e2e tests must be run with a live MongoDB URI.
-
-To run the built-in smoke tests:
-
 ```bash
-node --test
+npm test
 ```
 
-A local smoke test verifies:
+- `test/app.test.js`: app boots, health endpoint, validation errors
+- `test/website-compat.test.js`: seed, menu, orders, customer tracking, Payment Link initiate/verify, CORS. Uses an in-memory MongoDB (`mongodb-memory-server`, downloaded on first run) and a fake Razorpay client, so no database server or payment keys are needed.
 
-- app boots correctly
-- health endpoint works
-- validation middleware returns the expected error payload
-
-For full end-to-end testing, ensure MongoDB is running and the `.env` file is configured.
+For a live end-to-end run, ensure MongoDB is running, the `.env` file is configured, and run `npm run seed`.
 
 ## Deployment Instructions
 
 - Set all environment variables in the deployment environment.
 - Ensure the app uses `PORT` from environment values.
-- Configure `CLIENT_URL` and CORS for the production frontend.
+- Set `CLIENT_URL` to the website's URL (comma-separate several). It controls CORS with cookies and which pages payment can return to. If it is empty, any origin is accepted (local development only).
 - Keep secrets in deployment secret stores, not in source control.
 
 ## Known Limitations

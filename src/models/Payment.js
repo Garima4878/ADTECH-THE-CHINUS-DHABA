@@ -18,9 +18,10 @@ const paymentSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
+    // No default: a sparse unique index skips missing values but not '', so a '' default
+    // allowed only one unpaid payment at a time (E11000 duplicate key for the next customer).
     paymentId: {
       type: String,
-      default: '',
       index: { unique: true, sparse: true },
     },
     gatewayOrderId: {
