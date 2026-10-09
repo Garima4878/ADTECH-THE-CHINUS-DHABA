@@ -14,8 +14,8 @@ const protect = async (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret');
     const user = await User.findById(decoded._id).select('-password');
 
-    if (!user) {
-      return next(new ApiError(401, 'User no longer exists.'));
+    if (!user || user.isActive === false) {
+      return next(new ApiError(401, 'User no longer exists or has been deactivated.'));
     }
 
     req.user = user;

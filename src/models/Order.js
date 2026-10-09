@@ -49,6 +49,29 @@ const orderSchema = new mongoose.Schema(
       default: 'Guest',
       trim: true,
     },
+    customerPhone: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    notes: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    orderType: {
+      type: String,
+      enum: ['DineIn', 'Takeaway', 'Delivery'],
+      default: 'DineIn',
+    },
+    statusHistory: [
+      {
+        _id: false,
+        status: { type: String, required: true },
+        at: { type: Date, default: Date.now },
+        by: { type: String, default: '' },
+      },
+    ],
     items: [orderItemSchema],
     subtotal: {
       type: Number,

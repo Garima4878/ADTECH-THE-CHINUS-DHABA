@@ -30,6 +30,14 @@ const menuItemSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    isVeg: {
+      type: Boolean,
+      default: false,
+    },
+    isSpicy: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

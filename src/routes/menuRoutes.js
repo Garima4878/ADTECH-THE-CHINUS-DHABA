@@ -31,7 +31,7 @@ router.get(
 router.post(
   '/',
   protect,
-  authorize('admin', 'staff'),
+  authorize('admin', 'manager', 'staff'),
   [
     body('name').isString().trim().notEmpty().withMessage('Menu item name is required.'),
     body('category').isMongoId().withMessage('Category is required and must be a valid Mongo ID.'),
@@ -43,7 +43,7 @@ router.post(
 router.put(
   '/:id',
   protect,
-  authorize('admin', 'staff'),
+  authorize('admin', 'manager', 'staff'),
   [
     param('id').isMongoId().withMessage('Invalid menu item ID.'),
     body('price').optional().isFloat({ min: 0 }).withMessage('Price must be a non-negative number.'),
@@ -54,7 +54,7 @@ router.put(
 router.patch(
   '/:id/availability',
   protect,
-  authorize('admin', 'staff'),
+  authorize('admin', 'manager', 'staff'),
   [
     param('id').isMongoId().withMessage('Invalid menu item ID.'),
     body('isAvailable').isBoolean().withMessage('isAvailable must be a boolean.'),
@@ -65,7 +65,7 @@ router.patch(
 router.delete(
   '/:id',
   protect,
-  authorize('admin', 'staff'),
+  authorize('admin', 'manager', 'staff'),
   [param('id').isMongoId().withMessage('Invalid menu item ID.')],
   handleValidationErrors,
   deleteMenuItem

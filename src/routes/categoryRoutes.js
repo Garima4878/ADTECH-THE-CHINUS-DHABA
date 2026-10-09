@@ -22,7 +22,7 @@ router.get(
 router.post(
   '/',
   protect,
-  authorize('admin', 'staff'),
+  authorize('admin', 'manager', 'staff'),
   [
     body('name').isString().trim().notEmpty().withMessage('Category name is required.'),
   ],
@@ -32,7 +32,7 @@ router.post(
 router.put(
   '/:id',
   protect,
-  authorize('admin', 'staff'),
+  authorize('admin', 'manager', 'staff'),
   [
     param('id').isMongoId().withMessage('Invalid category ID.'),
     body('name').optional().isString().trim().notEmpty().withMessage('Category name cannot be empty.'),
@@ -43,7 +43,7 @@ router.put(
 router.delete(
   '/:id',
   protect,
-  authorize('admin', 'staff'),
+  authorize('admin', 'manager', 'staff'),
   [param('id').isMongoId().withMessage('Invalid category ID.')],
   handleValidationErrors,
   deleteCategory

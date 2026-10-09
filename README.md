@@ -219,7 +219,26 @@ The customer website (`index.html` / `app.js`) reads a flat JSON shape. These re
 - `POST /api/orders` and `GET /api/orders/ORD-...` add `{ orderId, status, total, subtotal, tax, paymentStatus, tableId, createdAt }`, with `Served/Completed` shown as `Served`
 - `POST /api/payments/initiate` adds `checkoutUrl`; `POST /api/payments/verify` adds `{ paymentStatus, orderStatus }`
 
-Not covered yet: the website's staff board calls `/api/staff/orders` without a login. Staff routes here need a JWT (`Authorization: Bearer ...` from `/api/auth/login`).
+The website's own "Staff board" button (demo only) calls `/api/staff/orders` without a login and is not served. Restaurant staff use the admin dashboard below.
+
+### Admin dashboard API (`/api/admin`)
+
+Used by the restaurant dashboard in `admin-dashboard/` (contract in `admin-dashboard/README.md`). Every route needs a staff login: `POST /api/auth/login` with `{ username, password }` (or `{ email, password }`) returns a JWT for `Authorization: Bearer ...`. Roles are enforced by the server:
+
+| Routes | staff (dashboard "employee") | manager | admin |
+|---|:---:|:---:|:---:|
+| `GET /dashboard/stats`, `GET /orders`, `GET /orders/:id` | ✅ | ✅ | ✅ |
+| `PATCH /orders/:id/status` (advance), `PATCH /orders/:id/payment` (mark paid at the counter) | ✅ | ✅ | ✅ |
+| Cancel an order (only before Preparing) | ❌ | ✅ | ✅ |
+| `GET /menu/items`, `GET /menu/categories`, `GET /tables` | ✅ | ✅ | ✅ |
+| Create/edit/delete menu items, categories and tables; table floor status | ❌ | ✅ | ✅ |
+| `GET /payments` | ❌ | ✅ | ✅ |
+| `/staff` (create, edit, deactivate staff accounts) | ❌ | ❌ | ✅ |
+
+- Status changes from the dashboard and the staff API are written to the order's `statusHistory` (who and when), and customers see them on the website's order tracking.
+- Safe deletes: dishes that appear in orders, categories with dishes, and tables with orders can't be deleted. Mark them unavailable or inactive instead.
+- Admins can't deactivate, demote or delete their own account.
+- `POST /api/auth/register` is **admin only**. It used to be public and gave every new account the admin role.
 
 ### Seed data
 
@@ -261,7 +280,10 @@ npm test
 ```
 
 - `test/app.test.js`: app boots, health endpoint, validation errors
-- `test/website-compat.test.js`: seed, menu, orders, customer tracking, Payment Link initiate/verify, CORS. Uses an in-memory MongoDB (`mongodb-memory-server`, downloaded on first run) and a fake Razorpay client, so no database server or payment keys are needed.
+- `test/website-compat.test.js`: seed, menu, orders, customer tracking, Payment Link initiate/verify, CORS.
+- `test/admin-dashboard.test.js`: staff login, roles, dashboard orders/status/history, counter payments, stats, menu, categories, tables, staff accounts.
+
+The database tests use an in-memory MongoDB (`mongodb-memory-server`, downloaded on first run) and a fake Razorpay client, so no database server or payment keys are needed.
 
 For a live end-to-end run, ensure MongoDB is running, the `.env` file is configured, and run `npm run seed`.
 
@@ -269,7 +291,7 @@ For a live end-to-end run, ensure MongoDB is running, the `.env` file is configu
 
 - Set all environment variables in the deployment environment.
 - Ensure the app uses `PORT` from environment values.
-- Set `CLIENT_URL` to the website's URL (comma-separate several). It controls CORS with cookies and which pages payment can return to. If it is empty, any origin is accepted (local development only).
+- Set `CLIENT_URL` to the website and admin dashboard URLs (comma-separated). It controls CORS with cookies and which pages payment can return to. If it is empty, any origin is accepted (local development only).
 - Keep secrets in deployment secret stores, not in source control.
 
 ## Known Limitations

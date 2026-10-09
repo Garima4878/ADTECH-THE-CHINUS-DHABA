@@ -13,6 +13,17 @@ const generateToken = (user) =>
     { expiresIn: '7d' }
   );
 
+const STAFF_ROLES = ['admin', 'manager', 'staff'];
+
+const publicUser = (user) => ({
+  id: user._id,
+  name: user.name,
+  username: user.username || user.email,
+  email: user.email,
+  role: user.role,
+});
+
+// Admin only (see authRoutes): previously this route was public and gave every new account the admin role.
 const register = async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body;
@@ -30,53 +41,45 @@ const register = async (req, res, next) => {
       name,
       email: email.toLowerCase(),
       password,
-      role: role === 'staff' ? 'staff' : 'admin',
+      role: STAFF_ROLES.includes(role) ? role : 'staff',
     });
 
     const token = generateToken(user);
 
     return sendSuccess(res, 201, 'User registered successfully.', {
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+      user: publicUser(user),
     });
   } catch (error) {
     return next(error);
   }
 };
 
+// Accepts { email, password } or { username, password }; the username field may also hold an email.
 const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { password } = req.body;
+    const identifier = String(req.body.username || req.body.email || '').trim().toLowerCase();
 
-    if (!email || !password) {
-      return sendError(res, 400, 'Email and password are required.');
+    if (!identifier || !password) {
+      return sendError(res, 400, 'Username or email and password are required.');
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user) {
-      return sendError(res, 401, 'Invalid email or password.');
+    const user = await User.findOne({ $or: [{ email: identifier }, { username: identifier }] });
+    if (!user || !user.isActive) {
+      return sendError(res, 401, 'Invalid username or password.');
     }
 
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return sendError(res, 401, 'Invalid email or password.');
+      return sendError(res, 401, 'Invalid username or password.');
     }
 
     const token = generateToken(user);
 
     return sendSuccess(res, 200, 'Login successful.', {
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+      user: publicUser(user),
     });
   } catch (error) {
     return next(error);
@@ -90,12 +93,7 @@ const getCurrentUser = async (req, res, next) => {
     }
 
     return sendSuccess(res, 200, 'Profile fetched successfully.', {
-      user: {
-        id: req.user._id,
-        name: req.user.name,
-        email: req.user.email,
-        role: req.user.role,
-      },
+      user: publicUser(req.user),
     });
   } catch (error) {
     return next(error);
