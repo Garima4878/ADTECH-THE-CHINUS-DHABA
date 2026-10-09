@@ -4,6 +4,7 @@ import { categoriesApi, menuApi } from "@/lib/endpoints";
 import { queryKeys } from "@/hooks/queries";
 import { can } from "@/lib/permissions";
 import { formatCurrency } from "@/lib/format";
+import { dishImageSrc } from "@/config";
 import { useAuth } from "@/providers/AuthProvider";
 import type { MenuItem } from "@/types";
 import { Modal, ConfirmDialog } from "@/components/ui/Modal";
@@ -207,9 +208,9 @@ export default function MenuPage() {
                     className="flex flex-wrap items-center justify-between gap-3 px-4 py-3"
                   >
                     <div className="flex min-w-0 items-center gap-3">
-                      {item.imageUrl ? (
+                      {dishImageSrc(item.imageUrl) ? (
                         <img
-                          src={item.imageUrl}
+                          src={dishImageSrc(item.imageUrl) ?? undefined}
                           alt=""
                           className="h-12 w-12 shrink-0 rounded-lg object-cover"
                         />

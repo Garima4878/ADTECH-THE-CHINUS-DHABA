@@ -134,6 +134,7 @@ const shutdown = async (code = 0) => {
   if (dashboardReady) {
     startChild('dashboard', [viteBin, '--host', '0.0.0.0', '--port', String(PORTS.dashboard), '--strictPort'], dashboardDir, {
       VITE_PROXY_TARGET: `http://localhost:${PORTS.api}`,
+      VITE_WEBSITE_URL: `http://localhost:${PORTS.web}`,
     });
   }
 

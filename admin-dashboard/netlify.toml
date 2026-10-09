@@ -1,6 +1,6 @@
 # Netlify: restaurant admin dashboard (set the site's base directory to admin-dashboard).
 # Set VITE_API_BASE_URL (e.g. https://chinu-dhaba-api.onrender.com/api) in Netlify -> Site configuration ->
-# Environment variables before building.
+# Environment variables before building, and VITE_WEBSITE_URL (the customer website) so dish photos show.
 [build]
   command = "npm run build"
   publish = "dist"
