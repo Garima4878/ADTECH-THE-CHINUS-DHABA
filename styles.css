@@ -97,7 +97,7 @@ html[data-theme="light"] .theme-toggle .icon-moon { display: block; }
 .mobile-menu-toggle { display: none; border: 0; background: transparent; font-size: 23px; cursor: pointer; }
 
 .hero { position: relative; min-height: min(760px, calc(100vh - 82px)); display: flex; align-items: center; overflow: hidden; padding: 78px clamp(22px, 4vw, 64px) 72px; }
-.hero-photo { position: absolute; inset: 0 0 0 43%; background: linear-gradient(90deg, var(--bg) 0%, rgba(var(--scrim-rgb), .92) 5%, rgba(var(--scrim-rgb), .18) 49%, rgba(var(--scrim-rgb), .04) 100%), linear-gradient(0deg, var(--bg), transparent 26%), url("assets/site/hero.jpg") center 55%/cover no-repeat; }
+.hero-photo { position: absolute; inset: 0 0 0 43%; background: linear-gradient(90deg, var(--bg) 0%, rgba(var(--scrim-rgb), .92) 5%, rgba(var(--scrim-rgb), .18) 49%, rgba(var(--scrim-rgb), .04) 100%), linear-gradient(0deg, var(--bg), transparent 26%), url("assets/site/hero-biryani.jpg") center 55%/cover no-repeat; }
 .hero-content { position: relative; z-index: 1; width: min(580px, 52%); }
 .eyebrow { margin: 0 0 18px; color: var(--gold); text-transform: uppercase; font-size: 12px; letter-spacing: .19em; font-weight: 600; }
 .hero .eyebrow { display: flex; align-items: center; gap: 14px; }
@@ -303,7 +303,7 @@ h2 { margin: 0; font-size: clamp(36px, 4vw, 53px); line-height: 1.1; letter-spac
   .table-chip { display: block; padding: 5px 7px; font-size: 10px; }
   .mobile-menu-toggle { display: block; padding: 4px; }
   .hero { min-height: 710px; align-items: flex-start; padding: 85px 22px 32px; }
-  .hero-photo { inset: 0; opacity: .7; background-image: linear-gradient(90deg, rgba(var(--scrim-rgb), .94), rgba(var(--scrim-rgb), .48)), linear-gradient(0deg, var(--bg), transparent 38%), url("assets/site/hero.jpg"); background-position: center, center, 58% center; }
+  .hero-photo { inset: 0; opacity: .7; background-image: linear-gradient(90deg, rgba(var(--scrim-rgb), .94), rgba(var(--scrim-rgb), .48)), linear-gradient(0deg, var(--bg), transparent 38%), url("assets/site/hero-biryani.jpg"); background-position: center, center, 58% center; }
   .hero-content { width: 100%; }
   h1 { font-size: clamp(51px, 14vw, 70px); }
   .hero-copy { max-width: 430px; font-size: 15px; }
@@ -386,9 +386,18 @@ h2 { margin: 0; font-size: clamp(36px, 4vw, 53px); line-height: 1.1; letter-spac
   .item-sheet-image { width: calc(100% - 32px); max-height: 200px; margin-top: 16px; }
 }
 
-/* Light theme: only fade the left edge of the hero photo so the food keeps its colour. */
-@media (min-width: 641px) {
-  html[data-theme="light"] .hero-photo { background: linear-gradient(90deg, var(--bg) 0%, rgba(var(--scrim-rgb), .55) 7%, rgba(var(--scrim-rgb), 0) 26%), linear-gradient(0deg, var(--bg), transparent 16%), url("assets/site/hero.jpg") center 55%/cover no-repeat; }
+/* ---------- Hero photo in a rounded frame (both themes) ----------
+   A sharp photo shown as a framed picture next to the headline instead of a full-bleed faded
+   background, so it looks clean in light and dark mode. Photo: assets/site/hero-biryani.jpg (CC0, see credits). */
+.hero-photo { inset: 48px clamp(22px, 4vw, 64px) 48px 53%; opacity: 1; border-radius: 28px; }
+.hero-photo { background: url("assets/site/hero-biryani.jpg") center/cover no-repeat; box-shadow: 0 30px 60px -24px rgba(0,0,0,.55), 0 0 0 1px rgba(229,174,74,.25); }
+.hero-content { width: min(580px, 48%); }
+.seal { right: auto; left: calc(100% + 18px); bottom: 64px; }
+@media (max-width: 900px) {
+  .hero { min-height: 0; flex-direction: column; align-items: stretch; padding: 32px 22px 48px; }
+  .hero-photo { position: relative; inset: auto; height: clamp(220px, 48vw, 380px); margin-bottom: 34px; border-radius: 22px; background-position: center 50%; }
+  .hero-content { width: 100%; }
+  .seal { left: auto; right: 14px; top: -84px; bottom: auto; }
 }
 
 /* Keep the "100% desi dil se" seal readable over the photo in both themes. */
