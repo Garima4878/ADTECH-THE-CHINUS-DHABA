@@ -126,6 +126,8 @@ Free hosting: **MongoDB Atlas** (database), **Render** (backend + AI, from `rend
 
 Render free services sleep after ~15 minutes idle; the first request afterwards takes up to a minute.
 
+**Prototype mode (no dashboard login):** set `PROTOTYPE_OPEN_ADMIN=true` on the Render backend and `VITE_PROTOTYPE_NO_LOGIN=true` on the dashboard's Netlify site, then redeploy both. Anyone with the dashboard link then has full admin access (orders, customer phone numbers, prices, staff), so remove both variables before the restaurant uses it for real.
+
 ## Status and known gaps
 
 - **Prices:** Veg Thali ₹100 is from the restaurant's banner. The other 16 prices are team estimates until the restaurant confirms them.

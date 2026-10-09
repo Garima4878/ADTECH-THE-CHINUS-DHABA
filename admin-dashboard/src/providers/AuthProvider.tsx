@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { TOKEN_STORAGE_KEY, UNAUTHORIZED_EVENT, USER_STORAGE_KEY } from "@/config";
+import { PROTOTYPE_NO_LOGIN, TOKEN_STORAGE_KEY, UNAUTHORIZED_EVENT, USER_STORAGE_KEY } from "@/config";
 import { http, unwrap } from "@/lib/api";
 import type { Role, User } from "@/types";
 
@@ -28,7 +28,16 @@ interface LoginResponse {
   user: { id: string; name: string; username?: string; email?: string; role: string };
 }
 
+const PROTOTYPE_USER: User = {
+  id: "prototype",
+  name: "Restaurant Admin",
+  username: "admin",
+  role: "admin",
+  isActive: true,
+};
+
 function readStoredUser(): User | null {
+  if (PROTOTYPE_NO_LOGIN) return PROTOTYPE_USER;
   if (!localStorage.getItem(TOKEN_STORAGE_KEY)) return null;
   const raw = localStorage.getItem(USER_STORAGE_KEY);
   if (!raw) return null;
@@ -70,6 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Expired, deactivated or removed accounts are signed out as soon as the backend rejects them.
   useEffect(() => {
+    if (PROTOTYPE_NO_LOGIN) return undefined;
     window.addEventListener(UNAUTHORIZED_EVENT, signOut);
     return () => window.removeEventListener(UNAUTHORIZED_EVENT, signOut);
   }, [signOut]);
