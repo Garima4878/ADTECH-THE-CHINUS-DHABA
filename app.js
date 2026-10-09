@@ -10,13 +10,26 @@
   const storageScope = encodeURIComponent(tableId || "web");
   const CART_STORAGE_KEY = `chinu-cart:${storageScope}`;
   const ORDER_STORAGE_KEY = `chinu-order:${storageScope}`;
+  // Approved dish names from the restaurant banners (same list as ai-assistant/data/restaurant-knowledge-base.json).
+  // Veg Thali Rs 100 is printed on the banner; other prices are team estimates until the restaurant confirms.
   const MENU_SEED = [
-    { id: "murgh-tikka", name: "Murgh Tikka", description: "Charred chicken, kasundi marinade, smoky finish", price: 340, category: "From the Tandoor", tag: "Chef's pick", imageUrl: "https://images.unsplash.com/photo-1683533746199-9e3920bf3eab?q=85&w=800", available: true },
-    { id: "butter-chicken", name: "Butter Chicken", description: "Tandoori chicken, tomato makhani, fenugreek", price: 390, category: "House Gravies", tag: "Popular", imageUrl: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=85&w=800", available: true },
-    { id: "dal-chinu", name: "Dal Chinu", description: "Slow-cooked black lentils, butter, smoked chilli", price: 260, category: "House Gravies", tag: "Vegetarian", imageUrl: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=85&w=800", available: true },
-    { id: "garlic-naan", name: "Garlic Naan", description: "Clay-oven bread, roasted garlic, coriander", price: 95, category: "Breads & Rice", tag: "Vegetarian", imageUrl: "https://images.unsplash.com/photo-1601050690597-df0568f70950?q=85&w=800", available: true },
-    { id: "mutton-biryani", name: "Mutton Biryani", description: "Dum-cooked basmati, tender mutton, fried onions", price: 440, category: "Breads & Rice", tag: "Signature", imageUrl: "https://images.unsplash.com/photo-1585937421612-70a008356fbe?q=85&w=800", available: true },
-    { id: "matka-lassi", name: "Matka Lassi", description: "Cold, creamy, cardamom-scented yoghurt drink", price: 120, category: "Thanda Thanda", tag: "Vegetarian", imageUrl: "https://images.unsplash.com/photo-1579954115545-a95591f28bfc?q=85&w=800", available: true }
+    { id: "chicken-biryani", name: "Chicken Biryani", description: "Rice biryani cooked with chicken pieces.", price: 160, category: "Biryani", tag: "", imageUrl: "assets/menu/chicken-biryani.jpg", available: true },
+    { id: "mutton-biryani", name: "Mutton Biryani", description: "Rice biryani cooked with mutton pieces.", price: 240, category: "Biryani", tag: "", imageUrl: "assets/menu/mutton-biryani.jpg", available: true },
+    { id: "egg-biryani", name: "Egg Biryani", description: "Rice biryani served with boiled eggs.", price: 120, category: "Biryani", tag: "", imageUrl: "assets/menu/egg-biryani.jpg", available: true },
+    { id: "special-biryani", name: "Special Biryani", description: "The house special biryani. Ask staff for today's details.", price: 200, category: "Biryani", tag: "House special", imageUrl: "assets/menu/special-biryani.jpg", available: true },
+    { id: "chicken-roast", name: "Chicken Roast", description: "Roasted chicken pieces.", price: 200, category: "Chicken", tag: "", imageUrl: "assets/menu/chicken-roast.jpg", available: true },
+    { id: "chicken-fry", name: "Chicken Fry", description: "Fried chicken, dhaba style.", price: 180, category: "Chicken", tag: "", imageUrl: "assets/menu/chicken-fry.jpg", available: true },
+    { id: "chicken-handi", name: "Chicken Handi", description: "Chicken curry served in a handi (clay pot). Goes well with roti.", price: 240, category: "Chicken", tag: "", imageUrl: "assets/menu/chicken-handi.jpg", available: true },
+    { id: "mutton-handi", name: "Mutton Handi", description: "Mutton curry served in a handi (clay pot). Goes well with roti.", price: 320, category: "Mutton", tag: "", imageUrl: "assets/menu/mutton-handi.jpg", available: true },
+    { id: "mutton-korma", name: "Mutton Korma", description: "Mutton cooked in a thick korma gravy.", price: 300, category: "Mutton", tag: "", imageUrl: "assets/menu/mutton-korma.jpg", available: true },
+    { id: "mutton-paya-korma", name: "Mutton Paya Korma", description: "Korma made with mutton paya (trotters).", price: 260, category: "Mutton", tag: "", imageUrl: "assets/menu/mutton-paya-korma.jpg", available: true },
+    { id: "special-chicken-mutton-korma", name: "Special Chicken & Mutton Korma", description: "House special korma with both chicken and mutton.", price: 350, category: "Mutton", tag: "House special", imageUrl: "assets/menu/special-chicken-mutton-korma.jpg", available: true },
+    { id: "fish-roast", name: "Fish Roast", description: "Roasted whole fish served with lemon.", price: 220, category: "Fish", tag: "", imageUrl: "assets/menu/fish-roast.jpg", available: true },
+    { id: "special-thali", name: "Special Thali", description: "Full non-veg thali with curry, rice, roti and sides. Ask staff for today's thali items.", price: 200, category: "Thali", tag: "House special", imageUrl: "assets/menu/special-thali.jpg", available: true },
+    { id: "veg-thali", name: "Veg Thali", description: "Vegetarian thali with sabzi, dal, rice and roti.", price: 100, category: "Thali", tag: "Vegetarian", imageUrl: "assets/menu/veg-thali.jpg", available: true },
+    { id: "jowar-roti", name: "Jowar Roti", description: "Roti made from jowar (sorghum) flour.", price: 20, category: "Roti", tag: "Vegetarian", imageUrl: "assets/menu/jowar-roti.jpg", available: true },
+    { id: "bajra-roti", name: "Bajra Roti", description: "Roti made from bajra (pearl millet) flour.", price: 20, category: "Roti", tag: "Vegetarian", imageUrl: "assets/menu/bajra-roti.jpg", available: true },
+    { id: "makka-roti", name: "Makka Roti", description: "Roti made from makka (maize) flour.", price: 25, category: "Roti", tag: "Vegetarian", imageUrl: "assets/menu/makka-roti.jpg", available: true }
   ];
   const state = {
     menu: [],
@@ -351,6 +364,21 @@
     renderCart();
     if (difference > 0 && item) showToast(`${item.name} added to your order.`);
   }
+
+  // "Add" on a dish suggested in the AI menu chat (ai-assistant/public/chat-widget.js).
+  // detail.itemId is the backend id when the AI reads the live menu, else the menu-seed id; the name is a fallback.
+  window.addEventListener("chinu:add-to-cart", (event) => {
+    const detail = event.detail || {};
+    const ids = [detail.itemId, detail.aiItemId].filter((id) => id != null).map(String);
+    const name = String(detail.name || "").trim().toLowerCase();
+    const item = state.menu.find((menuItem) => ids.includes(menuItem.id))
+      || state.menu.find((menuItem) => menuItem.name.trim().toLowerCase() === name);
+    if (!item) {
+      showToast(`Sorry, ${detail.name || "that dish"} isn’t on the menu right now.`);
+      return;
+    }
+    changeQuantity(item.id, 1);
+  });
 
   function openItemSheet(item) {
     const line = state.cart[item.id];
@@ -959,4 +987,16 @@
   loadMenu();
   verifyPaymentReturn();
   startOrderPolling();
+
+  // AI menu assistant chat button (ai-assistant/). Loads only when config.js sets aiAssistantUrl.
+  const AI_ASSISTANT_URL = String(CONFIG.aiAssistantUrl || "").replace(/\/+$/, "");
+  if (AI_ASSISTANT_URL) {
+    const widget = document.createElement("script");
+    widget.src = `${AI_ASSISTANT_URL}/widget/chat-widget.js`;
+    widget.dataset.apiBase = AI_ASSISTANT_URL;
+    widget.dataset.bottomOffset = "72";
+    if (/^[A-Za-z0-9_-]{1,20}$/.test(tableId)) widget.dataset.tableId = tableId;
+    widget.defer = true;
+    document.body.append(widget);
+  }
 })();
