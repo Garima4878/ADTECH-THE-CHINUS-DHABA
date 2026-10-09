@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { RESTAURANT_NAME, RESTAURANT_TAGLINE } from "@/config";
+import { PROTOTYPE_NO_LOGIN, RESTAURANT_NAME, RESTAURANT_TAGLINE } from "@/config";
 import { can, isAdmin, ROLE_LABEL, type Permission } from "@/lib/permissions";
 import { useAuth } from "@/providers/AuthProvider";
 
@@ -97,9 +97,11 @@ export function AppLayout() {
                 </p>
               </div>
             </div>
-            <button type="button" onClick={handleSignOut} className="btn-ghost w-full">
-              Sign out
-            </button>
+            {!PROTOTYPE_NO_LOGIN && (
+              <button type="button" onClick={handleSignOut} className="btn-ghost w-full">
+                Sign out
+              </button>
+            )}
           </div>
         </div>
       </aside>

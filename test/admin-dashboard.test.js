@@ -231,3 +231,17 @@ test('tables: occupied status, new tables work for QR ordering, safe deletes', a
   const t12 = await as(managerToken).post('/api/admin/tables', { number: 'T12', capacity: 2 });
   assert.equal((await as(managerToken).delete(`/api/admin/tables/${t12.body.data.id}`)).status, 200);
 });
+
+test('prototype mode (PROTOTYPE_OPEN_ADMIN) opens the admin API without a login, and only when switched on', async () => {
+  assert.equal((await request(app).get('/api/admin/orders')).status, 401);
+  process.env.PROTOTYPE_OPEN_ADMIN = 'true';
+  try {
+    assert.equal((await request(app).get('/api/admin/orders')).status, 200);
+    assert.equal((await request(app).get('/api/auth/me')).body.data.user.role, 'admin');
+    // A token that is sent is still checked.
+    assert.equal((await request(app).get('/api/admin/orders').set('Authorization', 'Bearer forged')).status, 401);
+  } finally {
+    delete process.env.PROTOTYPE_OPEN_ADMIN;
+  }
+  assert.equal((await request(app).get('/api/admin/orders')).status, 401);
+});
