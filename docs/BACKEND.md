@@ -212,7 +212,7 @@ Used by the restaurant dashboard in `admin-dashboard/` (contract in `admin-dashb
 npm run seed
 ```
 
-Loads the 17 dishes and 6 categories from `ai-assistant/data/restaurant-knowledge-base.json` (the same menu the website and AI use) and tables `T01`–`T10` (`SEED_TABLES=15` for more). QR link for a table: `https://<website>/?table=T01`. Set `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` to also create an admin login. Running it again updates the same records.
+Loads the 16 dishes and 6 categories from `ai-assistant/data/restaurant-knowledge-base.json` (the same menu the website and AI use) and tables `T01`–`T10` (`SEED_TABLES=15` for more). QR link for a table: `https://<website>/?table=T01`. Set `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` to also create an admin login. Running it again updates the same records.
 
 ## QR Table Ordering Flow
 

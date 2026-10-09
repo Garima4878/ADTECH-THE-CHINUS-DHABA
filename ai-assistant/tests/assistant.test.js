@@ -158,11 +158,11 @@ describe('guardrails', () => {
   const ok = (reply, extra = {}) => ({ reply, item_ids: [], needs_staff: false, ...extra });
 
   test('extracts prices written different ways', () => {
-    assert.deepEqual(extractPrices('Veg Thali is ₹100, biryani Rs. 180 and 250/-'), [100, 180, 250]);
+    assert.deepEqual(extractPrices('Egg Biryani is ₹120, biryani Rs. 180 and 250/-'), [120, 180, 250]);
   });
 
   test('accepts a real menu price', () => {
-    assert.equal(validateLlmResult(ok('Veg Thali is ₹100.'), kb, 'veg thali price?').ok, true);
+    assert.equal(validateLlmResult(ok('Egg Biryani is ₹120.'), kb, 'egg biryani price?').ok, true);
   });
 
   test('rejects an invented price', () => {
@@ -184,7 +184,7 @@ describe('guardrails', () => {
   });
 
   test("allows repeating the customer's own budget", () => {
-    assert.equal(validateLlmResult(ok('Under ₹300 you could try the Veg Thali (₹100).'), kb, 'something under 300').ok, true);
+    assert.equal(validateLlmResult(ok('Under ₹300 you could try the Egg Biryani (₹120).'), kb, 'something under 300').ok, true);
   });
 
   test('rejects made-up offers', () => {
@@ -207,10 +207,10 @@ describe('assistant', () => {
 
   test('offline mode answers from the knowledge base', async () => {
     const assistant = createAssistant({ loadKb, logger: silent });
-    const res = await assistant.chat({ message: 'veg thali kitne ka hai' });
+    const res = await assistant.chat({ message: 'egg biryani kitne ka hai' });
     assert.equal(res.source, 'offline');
-    assert.match(res.reply, /₹100/);
-    assert.equal(res.items[0].id, 'veg-thali');
+    assert.match(res.reply, /₹120/);
+    assert.equal(res.items[0].id, 'egg-biryani');
   });
 
   test('says an off-menu dish is not available and offers alternatives', async () => {

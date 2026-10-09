@@ -38,7 +38,7 @@ Also in the repository: `assets/photos/` (the restaurant's original photos), `as
                                          └────────► Razorpay (payment links)
 ```
 
-- The **menu** (17 dishes, names and prices) comes from one file, `ai-assistant/data/restaurant-knowledge-base.json`. `npm run seed` loads it into the database, and the website and the AI read the same dishes from the backend.
+- The **menu** (16 dishes, names and prices) comes from one file, `ai-assistant/data/restaurant-knowledge-base.json`. `npm run seed` loads it into the database, and the website and the AI read the same dishes from the backend.
 - The **table number** comes from the QR link (`?table=T05`) and travels with the order to the dashboard.
 - **Totals and payments are checked on the server**: the browser's prices are never trusted, and Razorpay is asked directly whether an order was paid.
 
@@ -130,7 +130,7 @@ Render free services sleep after ~15 minutes idle; the first request afterwards 
 
 ## Status and known gaps
 
-- **Prices:** Veg Thali ₹100 is from the restaurant's banner. The other 16 prices are team estimates until the restaurant confirms them.
+- **Prices:** all 16 prices are team estimates until the restaurant confirms them.
 - **Contact details:** the opening hours and phone number on the website are placeholders. The exact address isn't known yet.
 - **Payments:** Razorpay **test mode** only. Live payments need the restaurant's own Razorpay account.
 - **Order types:** dine-in only. Takeaway/delivery and partial/refunded payments appear in the dashboard UI but aren't produced yet.

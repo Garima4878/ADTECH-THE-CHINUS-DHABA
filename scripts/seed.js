@@ -1,6 +1,6 @@
 // Loads the shared restaurant menu and the dining tables into MongoDB. Safe to run more than once.
 //
-//   npm run seed                 # 17 dishes + tables T01-T10
+//   npm run seed                 # 16 dishes + tables T01-T10
 //   SEED_TABLES=15 npm run seed  # tables T01-T15
 //
 // The menu comes from ai-assistant/data/restaurant-knowledge-base.json, the same list the website

@@ -149,7 +149,7 @@ test('kitchen status updates reach the customer, with history and cancel rules',
 });
 
 test('counter payments are recorded and show on the payments page', async () => {
-  const placed = await websiteOrder('T08', 'Veg Thali', 2);
+  const placed = await websiteOrder('T08', 'Egg Biryani', 2);
   const id = await adminOrderId(placed.orderId);
   assert.equal((await as(employeeToken).patch(`/api/admin/orders/${id}/payment`, { status: 'Paid', method: 'Bitcoin' })).status, 400);
 
@@ -162,7 +162,7 @@ test('counter payments are recorded and show on the payments page', async () => 
 
   const payments = await as(managerToken).get('/api/admin/payments?status=Paid&method=UPI');
   const row = payments.body.data.find((p) => p.orderNumber === placed.orderId);
-  assert.equal(row.amount, 210);
+  assert.equal(row.amount, 252);
   assert.equal(row.tableNumber, 'T08');
   assert.ok(row.paidAt);
 });
@@ -170,7 +170,7 @@ test('counter payments are recorded and show on the payments page', async () => 
 test('dashboard stats count today\'s orders, revenue and busy tables', async () => {
   const stats = (await as(employeeToken).get('/api/admin/dashboard/stats')).body.data;
   assert.equal(stats.todayOrders, 4);
-  assert.equal(stats.todayRevenue, 210);
+  assert.equal(stats.todayRevenue, 252);
   assert.equal(stats.pendingOrders, 2); // T05, and T08 (paid but not started yet)
   assert.equal(stats.completedOrders, 1);
   assert.equal(stats.cancelledOrders, 1);

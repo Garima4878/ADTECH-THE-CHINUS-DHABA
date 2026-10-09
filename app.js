@@ -11,7 +11,7 @@
   const CART_STORAGE_KEY = `chinu-cart:${storageScope}`;
   const ORDER_STORAGE_KEY = `chinu-order:${storageScope}`;
   // Approved dish names from the restaurant banners (same list as ai-assistant/data/restaurant-knowledge-base.json).
-  // Veg Thali Rs 100 is printed on the banner; other prices are team estimates until the restaurant confirms.
+  // Prices are team estimates until the restaurant confirms them.
   const MENU_SEED = [
     { id: "chicken-biryani", name: "Chicken Biryani", description: "Rice biryani cooked with chicken pieces.", price: 160, category: "Biryani", tag: "", imageUrl: "assets/menu/chicken-biryani.jpg", available: true },
     { id: "mutton-biryani", name: "Mutton Biryani", description: "Rice biryani cooked with mutton pieces.", price: 240, category: "Biryani", tag: "", imageUrl: "assets/menu/mutton-biryani.jpg", available: true },
@@ -26,7 +26,6 @@
     { id: "special-chicken-mutton-korma", name: "Special Chicken & Mutton Korma", description: "House special korma with both chicken and mutton.", price: 350, category: "Mutton", tag: "House special", imageUrl: "assets/menu/special-chicken-mutton-korma.jpg", available: true },
     { id: "fish-roast", name: "Fish Roast", description: "Roasted whole fish served with lemon.", price: 220, category: "Fish", tag: "", imageUrl: "assets/menu/fish-roast.jpg", available: true },
     { id: "special-thali", name: "Special Thali", description: "Full non-veg thali with curry, rice, roti and sides. Ask staff for today's thali items.", price: 200, category: "Thali", tag: "House special", imageUrl: "assets/menu/special-thali.jpg", available: true },
-    { id: "veg-thali", name: "Veg Thali", description: "Vegetarian thali with sabzi, dal, rice and roti.", price: 100, category: "Thali", tag: "Vegetarian", imageUrl: "assets/menu/veg-thali.jpg", available: true },
     { id: "jowar-roti", name: "Jowar Roti", description: "Roti made from jowar (sorghum) flour.", price: 20, category: "Roti", tag: "Vegetarian", imageUrl: "assets/menu/jowar-roti.jpg", available: true },
     { id: "bajra-roti", name: "Bajra Roti", description: "Roti made from bajra (pearl millet) flour.", price: 20, category: "Roti", tag: "Vegetarian", imageUrl: "assets/menu/bajra-roti.jpg", available: true },
     { id: "makka-roti", name: "Makka Roti", description: "Roti made from makka (maize) flour.", price: 25, category: "Roti", tag: "Vegetarian", imageUrl: "assets/menu/makka-roti.jpg", available: true }

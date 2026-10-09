@@ -232,7 +232,8 @@ h2 { margin: 0; font-size: clamp(36px, 4vw, 53px); line-height: 1.1; letter-spac
 .item-sheet::backdrop { background: rgba(0,0,0,.7); backdrop-filter: blur(3px); }
 .item-sheet-content { position: relative; }
 .item-sheet-close { position: absolute; z-index: 1; top: 15px; right: 15px; border-color: rgba(255,255,255,.35); border-radius: 50%; color: white; background: var(--close-bg); }
-.item-sheet-image { display: block; width: 100%; max-height: 330px; aspect-ratio: 1.8; object-fit: cover; background: var(--panel-2); }
+/* Round like the menu list: the photos are framed so the whole dish fits the circle. */
+.item-sheet-image { display: block; width: min(260px, 62%); aspect-ratio: 1; margin: 34px auto 0; border-radius: 50%; object-fit: cover; background: var(--panel-2); box-shadow: 0 0 0 4px var(--panel), 0 0 0 5px rgba(229,174,74,.4), 0 14px 34px rgba(0,0,0,.35); }
 .item-sheet-body { padding: 25px 28px 28px; }
 .item-sheet-body .eyebrow { margin-bottom: 8px; }
 .item-sheet-body h2 { padding-right: 35px; font-size: 32px; }
@@ -347,7 +348,7 @@ h2 { margin: 0; font-size: clamp(36px, 4vw, 53px); line-height: 1.1; letter-spac
   .cart-drawer { padding: 21px; }
   .item-sheet { width: 100%; }
   .item-sheet-body { padding: 22px 20px max(22px, env(safe-area-inset-bottom)); }
-  .item-sheet-image { max-height: 280px; }
+  .item-sheet-image { width: min(220px, 60%); margin-top: 28px; }
   .item-sheet-actions { gap: 9px; }
   .item-sheet-confirm { font-size: 13px; }
   .checkout-dialog, .staff-dialog { padding: 22px; }
@@ -375,7 +376,6 @@ h2 { margin: 0; font-size: clamp(36px, 4vw, 53px); line-height: 1.1; letter-spac
 .menu-card h3 { margin-bottom: 4px; font-size: 19px; line-height: 1.25; }
 .menu-card p { max-width: none; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .dish-price { margin-top: 8px; }
-.item-sheet-image { width: calc(100% - 48px); max-height: 240px; margin: 24px auto 0; aspect-ratio: 1.6; border-radius: 16px; }
 @media (max-width: 900px) {
   .menu-grid { grid-template-columns: 1fr; }
 }
@@ -385,7 +385,6 @@ h2 { margin: 0; font-size: clamp(36px, 4vw, 53px); line-height: 1.1; letter-spac
   .menu-image-wrap { flex-basis: 96px; width: 96px; height: 96px; aspect-ratio: 1; }
   .menu-card h3 { font-size: 17px; }
   .menu-card p { font-size: 12px; }
-  .item-sheet-image { width: calc(100% - 32px); max-height: 200px; margin-top: 16px; }
 }
 
 /* ---------- Hero photo in a rounded frame (both themes) ----------
