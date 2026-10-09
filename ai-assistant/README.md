@@ -25,7 +25,7 @@ Customer phone ──► Frontend (menu, cart)            ──► Backend API 
 | `src/recommender.js` | Deterministic recommendation logic |
 | `public/chat-widget.js` | Drop-in chat widget for the frontend (no dependencies) |
 | `public/demo.html` | Demo menu page showing the widget working |
-| `tests/` | 36 automated tests (`npm test`) |
+| `tests/` | 40 automated tests (`npm test`) |
 | `docs/AI_DESIGN_AND_TESTING.md` | Prompt, model, guardrails, limitations and test cases |
 
 ## Setup
@@ -150,7 +150,16 @@ Add one script tag to the customer menu page:
 
 ## Status and open items
 
-- [ ] **Prices**: only Veg Thali (₹100) is known from the photos. The other 16 dishes have `price: null`, and the assistant tells customers to confirm with staff. Needs the approved price list.
+- [ ] **Prices are estimates**: only Veg Thali (₹100) is printed on the banners. The other 16 prices were estimated by the team from typical small-town dhaba prices in Madhya Pradesh (Oct 2026) so the prototype is usable. Replace them with the restaurant-approved price list before launch (or load the real prices into the backend: the AI picks them up through `MENU_API_URL`).
+
+  | Dish | ₹ | Dish | ₹ | Dish | ₹ |
+  |---|---|---|---|---|---|
+  | Chicken Biryani | 160 | Chicken Handi | 240 | Fish Roast | 220 |
+  | Mutton Biryani | 240 | Mutton Handi | 320 | Special Thali | 200 |
+  | Egg Biryani | 120 | Mutton Korma | 300 | Veg Thali (banner) | 100 |
+  | Special Biryani | 200 | Mutton Paya Korma | 260 | Jowar Roti | 20 |
+  | Chicken Roast | 200 | Special Chicken & Mutton Korma | 350 | Bajra Roti | 20 |
+  | Chicken Fry | 180 | | | Makka Roti | 25 |
 - [ ] **Restaurant details**: address, phone and opening hours are not in the photos (`null`).
 - [ ] **Descriptions**: short neutral descriptions were written for each dish. The team needs to review them.
 - [ ] **Item ids**: must be agreed with the backend.

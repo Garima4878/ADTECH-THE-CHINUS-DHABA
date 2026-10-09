@@ -127,16 +127,18 @@ describe('recommender', () => {
     assert.ok(!result.items.some((i) => i.id === 'chicken-biryani'));
   });
 
-  test('drops priced items above the budget and prefers confirmed prices', () => {
-    const items = kb.items.map((i) => {
-      if (i.id === 'chicken-biryani') return { ...i, price: 180 };
-      if (i.id === 'mutton-biryani') return { ...i, price: 260 };
-      return i;
-    });
+  test('drops priced items above the budget', () => {
+    const result = recommend(kb.items, { preference: 'biryani', maxBudget: 200 }, 10);
+    assert.ok(result.items.length > 0);
+    assert.ok(result.items.every((i) => i.price <= 200));
+    assert.ok(!result.items.some((i) => i.id === 'mutton-biryani')); // ₹240
+    assert.equal(result.overBudget, 1);
+  });
+
+  test('prefers confirmed prices over unknown ones within a budget', () => {
+    const items = kb.items.map((i) => (i.id === 'chicken-biryani' ? i : { ...i, price: null }));
     const result = recommend(items, { preference: 'biryani', maxBudget: 200 }, 3);
     assert.equal(result.items[0].id, 'chicken-biryani');
-    assert.ok(!result.items.some((i) => i.id === 'mutton-biryani'));
-    assert.equal(result.overBudget, 1);
   });
 
   test('veg preference only returns veg items', () => {
@@ -146,7 +148,8 @@ describe('recommender', () => {
   });
 
   test('flags unconfirmed prices instead of guessing', () => {
-    const result = recommend(kb.items, { preference: 'mutton' });
+    const items = kb.items.map((i) => (i.category === 'mutton' ? { ...i, price: null } : i));
+    const result = recommend(items, { preference: 'mutton' });
     assert.ok(result.note && /not listed/i.test(result.note));
   });
 });
@@ -163,9 +166,21 @@ describe('guardrails', () => {
   });
 
   test('rejects an invented price', () => {
-    const r = validateLlmResult(ok('Chicken Biryani is ₹180.'), kb, 'chicken biryani price?');
+    const r = validateLlmResult(ok('Chicken Biryani is ₹999.'), kb, 'chicken biryani price?');
     assert.equal(r.ok, false);
     assert.match(r.reason, /invented price/);
+  });
+
+  test("rejects another dish's price written next to a dish", () => {
+    // ₹180 is a real menu price (Chicken Fry), but not Chicken Biryani's (₹160).
+    const r = validateLlmResult(ok('Chicken Biryani is ₹180.'), kb, 'chicken biryani price?');
+    assert.equal(r.ok, false);
+    assert.match(r.reason, /for Chicken Biryani/);
+  });
+
+  test('accepts several correct prices, Hinglish wording and plate totals', () => {
+    const reply = 'Chicken Biryani ₹160 hai aur Mutton Handi ki keemat 320 rupees hai. 2 Jowar Roti = ₹40.';
+    assert.equal(validateLlmResult(ok(reply), kb, 'price batao').ok, true);
   });
 
   test("allows repeating the customer's own budget", () => {
@@ -218,7 +233,8 @@ describe('assistant', () => {
     const res = await assistant.chat({ message: 'suggest chicken', tableId: '5' });
     assert.equal(res.source, 'ai');
     assert.deepEqual(res.items.map((i) => i.id), ['chicken-handi', 'jowar-roti']);
-    assert.equal(res.items[0].price_status, 'ask_staff');
+    assert.equal(res.items[0].price, 240);
+    assert.equal(res.items[0].price_status, 'confirmed');
   });
 
   test('replaces an AI reply that invents a price', async () => {

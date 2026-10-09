@@ -35,7 +35,7 @@ reply + dish cards (only available items) → widget
 
 Every AI reply is checked before a customer sees it. If any check fails, the offline answer is used instead:
 
-1. **Prices**: every price in the reply (₹180, Rs 180, 180/-) must be a real menu price or a number the customer typed (e.g. their budget).
+1. **Prices**: every price in the reply (₹180, Rs 180, 180/-, "180 rupees") must be the price of the dish written just before it, or a total for up to 10 plates ("2 Jowar Roti = ₹40"). A price with no dish before it must be one of the menu's prices. Numbers the customer typed, like a budget, may be repeated. So "Chicken Biryani is ₹180" is rejected even though ₹180 is Chicken Fry's price.
 2. **Offers**: mentions of discounts, % off, combos or coupons are rejected while the knowledge base has no offers.
 3. **Off-menu dishes**: common dishes not on this menu (butter chicken, paneer, tandoori, naan…) are rejected unless the customer asked about them. If they did ask, the reply is allowed so the model can say "we don't have it".
 4. **Item ids**: unknown or unavailable ids are removed, so an "Add to cart" button can never appear for a dish that doesn't exist or is sold out.
@@ -93,14 +93,14 @@ order/payment help, and unknown → fallback.
 
 ## 6. Test cases and expected responses
 
-Automated: `npm test` (36 tests: knowledge base, parsing, recommender, guardrails, assistant, HTTP API).
+Automated: `npm test` (40 tests: knowledge base, parsing, recommender, guardrails, assistant, HTTP API).
 The offline answers below were run against the current knowledge base. AI-mode answers will be worded differently, but must pass the same guardrails.
 
 | # | Customer asks | Expected behaviour (verified in offline mode) |
 |---|---|---|
 | 1 | `hi` | Welcome message with example questions |
 | 2 | `suggest chicken for dinner` | 3 available chicken dishes, plus a note that some prices need confirming |
-| 3 | `biryani under 200` | Available biryanis. Prices not listed → "please confirm with staff that they fit your budget". No invented prices. |
+| 3 | `biryani under 200` | Egg Biryani (₹120), Chicken Biryani (₹160), Special Biryani (₹200). Mutton Biryani (₹240) is left out. Checked live with Gemini on 9 Oct. |
 | 4 | `anda biryani milega?` | "Yes, Egg Biryani is available." + Add button |
 | 5 | `veg thali kitne ka hai` | "Veg Thali: ₹100" |
 | 6 | `mutton paya korma price` | "price not listed - please ask staff", `needs_staff: true` |
@@ -124,7 +124,7 @@ The offline answers below were run against the current knowledge base. AI-mode a
 
 ## 7. Limitations
 
-- **Prices**: only Veg Thali has a price in the supplied photos. Budget recommendations are limited until the approved price list is added.
+- **Prices are estimates**: only Veg Thali (₹100) is printed on the banners. The other prices were estimated by the team from typical small-town dhaba prices in Madhya Pradesh so the prototype is usable, and must be replaced with the restaurant-approved prices before launch. Live checks on 9 Oct with these prices: "biryani under 200", "mutton dish under 300 for dinner", "chicken handi kitne ka hai" (₹240) and "2 people, budget 500" all gave correct, in-budget answers.
 - **Descriptions** are short neutral text written from the dish names and banner photos. They don't cover spice level or portion size, and the assistant won't claim those.
 - **Off-menu detection** uses a fixed list of common dishes. The model could still name a rarer dish that isn't on the menu. The prompt forbids it, and item ids are always filtered, so no Add button can appear for it.
 - **Offline mode** is keyword-based. Unusual phrasing gets the safe fallback instead of an answer.
