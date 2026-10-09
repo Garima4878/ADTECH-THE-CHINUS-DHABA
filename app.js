@@ -41,7 +41,16 @@
     selectedQuantity: 0,
     originalSelectedQuantity: 0,
     pollTimer: null,
-    toastTimer: null
+    toastTimer: null,
+    // Live mode: "checking" | "ok" | "none" (no QR table) | "invalid" | "inactive" | "unchecked" (server unreachable)
+    tableStatus: API_BASE ? "checking" : "ok"
+  };
+
+  // Orders are taken per table, so in live mode they need a valid table from the QR code.
+  const ORDERING_BLOCKED = {
+    none: "Please scan the QR code on your table to order. You can still browse the menu.",
+    invalid: `Table ${tableId} isn’t recognised. Please scan the QR code on your table again or ask our staff.`,
+    inactive: `Table ${tableId} isn’t taking orders right now. Please ask our staff.`
   };
 
   const $ = (selector) => document.querySelector(selector);
@@ -516,6 +525,35 @@
     $("#cart-footer").hidden = lines.length === 0;
     $("#cart-subtotal").textContent = money(subtotal);
     renderCheckoutSummary();
+    renderOrderingAvailability();
+  }
+
+  function renderOrderingAvailability() {
+    const blocked = ORDERING_BLOCKED[state.tableStatus] || "";
+    const tableNotice = $("#table-notice");
+    tableNotice.textContent = blocked;
+    tableNotice.hidden = !blocked;
+    const cartBlocked = $("#cart-blocked");
+    cartBlocked.textContent = blocked;
+    cartBlocked.hidden = !blocked;
+    $("#checkout-open").disabled = Boolean(blocked) || state.tableStatus === "checking";
+  }
+
+  async function checkTable() {
+    if (!API_BASE) return;
+    if (!tableId) {
+      state.tableStatus = "none";
+    } else {
+      try {
+        await apiRequest(`/api/tables/validate/${encodeURIComponent(tableId)}`, { method: "GET" });
+        state.tableStatus = "ok";
+      } catch (error) {
+        const message = String(error.message || "");
+        // If the server can't be reached, let checkout try anyway: the backend still checks the table.
+        state.tableStatus = /inactive/i.test(message) ? "inactive" : /unknown|invalid|not found/i.test(message) ? "invalid" : "unchecked";
+      }
+    }
+    renderOrderingAvailability();
   }
 
   function renderCheckoutSummary() {
@@ -640,6 +678,24 @@
       : state.order.paymentStatus === "pending"
         ? "Payment verification pending"
         : currentOrderStatus(state.order.status);
+    if (API_BASE && ONLINE_PAYMENTS && ["failed", "pending"].includes(state.order.paymentStatus)) {
+      const actions = document.createElement("div");
+      actions.className = "tracking-actions";
+      const pay = document.createElement("button");
+      pay.type = "button";
+      pay.className = "button button-primary";
+      pay.textContent = "Pay now";
+      pay.addEventListener("click", () => retryPayment(pay));
+      const check = document.createElement("button");
+      check.type = "button";
+      check.className = "text-link";
+      check.textContent = "I’ve paid – check again";
+      check.addEventListener("click", () => checkPaymentStatus(check));
+      const note = document.createElement("p");
+      note.textContent = "Or pay at the counter. Our staff will mark your order as paid.";
+      actions.append(pay, check, note);
+      info.append(actions);
+    }
     card.append(info, pill);
     content.append(card);
   }
@@ -750,17 +806,7 @@
     }
     if (paymentMethod === "online") {
       try {
-        const returnUrl = new URL(window.location.href);
-        returnUrl.searchParams.set("payment_return", "1");
-        returnUrl.searchParams.set("orderId", order.orderId);
-        const payment = await apiRequest("/api/payments/initiate", {
-          method: "POST",
-          body: JSON.stringify({ orderId: order.orderId, returnUrl: returnUrl.toString() })
-        });
-        if (!payment || !payment.checkoutUrl) throw new Error("The payment service did not return a checkout URL.");
-        const checkoutUrl = new URL(payment.checkoutUrl);
-        if (checkoutUrl.protocol !== "https:") throw new Error("The payment service returned an insecure checkout URL.");
-        window.location.assign(checkoutUrl.toString());
+        await startOnlinePayment(order);
         return order;
       } catch (error) {
         order.paymentStatus = "failed";
@@ -769,6 +815,54 @@
       }
     }
     return order;
+  }
+
+  // Sends the customer to the payment gateway's checkout page. Also used by "Pay now" to retry a payment.
+  async function startOnlinePayment(order) {
+    const returnUrl = new URL(window.location.href);
+    returnUrl.searchParams.set("payment_return", "1");
+    returnUrl.searchParams.set("orderId", order.orderId);
+    const payment = await apiRequest("/api/payments/initiate", {
+      method: "POST",
+      body: JSON.stringify({ orderId: order.orderId, returnUrl: returnUrl.toString() })
+    });
+    if (!payment || !payment.checkoutUrl) throw new Error("The payment service did not return a checkout URL.");
+    const checkoutUrl = new URL(payment.checkoutUrl);
+    if (checkoutUrl.protocol !== "https:") throw new Error("The payment service returned an insecure checkout URL.");
+    window.location.assign(checkoutUrl.toString());
+  }
+
+  async function retryPayment(button) {
+    setBusy(button, true, "Opening payment…");
+    try {
+      await startOnlinePayment(state.order);
+    } catch (error) {
+      showToast(`Payment could not be started: ${error.message}`);
+      setBusy(button, false, "");
+    }
+  }
+
+  // Asks the backend (which asks the payment gateway) whether this order has been paid.
+  async function checkPaymentStatus(button) {
+    setBusy(button, true, "Checking…");
+    try {
+      const result = await apiRequest("/api/payments/verify", {
+        method: "POST",
+        body: JSON.stringify({ orderId: state.order.orderId, paymentReference: null })
+      });
+      const status = String(result && (result.paymentStatus || result.status) || "").toLowerCase();
+      if (status === "paid") {
+        state.order.paymentStatus = "paid";
+        state.order.status = currentOrderStatus(result.orderStatus || state.order.status);
+        showToast("Payment received — your order is confirmed.");
+      } else {
+        showToast(status === "failed" ? "The payment was not completed. You can try again." : "We haven’t received this payment yet.");
+      }
+      setOrder(state.order);
+    } catch (error) {
+      showToast(`Could not check the payment: ${error.message}`);
+      setBusy(button, false, "");
+    }
   }
 
   function revealOrder(order) {
@@ -827,7 +921,7 @@
       if (verified !== "paid" && verified !== "success" && verified !== "verified") {
         order.paymentStatus = "failed";
         setOrder(order);
-        showToast("Payment could not be verified. Please contact the restaurant with your Order ID.");
+        showToast(ONLINE_PAYMENTS ? "Payment not completed. Tap “Pay now” to try again, or pay at the counter." : "Payment could not be verified. Please contact the restaurant with your Order ID.");
       } else {
         order.paymentStatus = "paid";
         order.status = currentOrderStatus(result.orderStatus || order.status);
@@ -985,8 +1079,11 @@
   renderCart();
   renderTracking();
   loadMenu();
+  checkTable();
   verifyPaymentReturn();
   startOrderPolling();
+  // The browser-only staff board is for demo mode. With a live backend, staff use the admin dashboard.
+  $("#staff-open").hidden = Boolean(API_BASE);
 
   // AI menu assistant chat button (ai-assistant/). Loads only when config.js sets aiAssistantUrl.
   const AI_ASSISTANT_URL = String(CONFIG.aiAssistantUrl || "").replace(/\/+$/, "");
