@@ -1,5 +1,5 @@
 // Flat shapes for the customer website (root app.js), which reads fields like `id`, `available`,
-// `orderId`, `total` and `status` at the top level of the JSON response (see README "Backend connection").
+// `orderId`, `total` and `status` at the top level of the JSON response (see docs/WEBSITE.md "Backend connection").
 // They are added next to the normal { success, message, data } payload, so existing clients are unaffected.
 
 const toWebsiteStatus = (status) => (status === 'Served/Completed' ? 'Served' : status);

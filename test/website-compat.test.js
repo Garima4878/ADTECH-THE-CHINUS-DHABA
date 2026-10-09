@@ -1,4 +1,4 @@
-// Integration tests: the backend speaks the customer website's API contract (root app.js / README).
+// Integration tests: the backend speaks the customer website's API contract (root app.js / docs/WEBSITE.md).
 // Uses an in-memory MongoDB and a fake Razorpay client, so no database server or payment keys are needed.
 const { test, before, after } = require('node:test');
 const assert = require('node:assert/strict');
