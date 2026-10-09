@@ -62,6 +62,8 @@ html[data-theme="light"] {
 html { scroll-behavior: smooth; scroll-padding-top: 88px; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--sans); }
 body.no-scroll { overflow: hidden; }
+/* Keep the AI chat button (ai-assistant widget) from covering the cart and checkout buttons. */
+body.no-scroll .chinu-ai-fab, body:has(dialog[open]) .chinu-ai-fab { display: none; }
 a { color: inherit; text-decoration: none; }
 button, input, textarea { font: inherit; }
 button { color: inherit; }
@@ -95,7 +97,7 @@ html[data-theme="light"] .theme-toggle .icon-moon { display: block; }
 .mobile-menu-toggle { display: none; border: 0; background: transparent; font-size: 23px; cursor: pointer; }
 
 .hero { position: relative; min-height: min(760px, calc(100vh - 82px)); display: flex; align-items: center; overflow: hidden; padding: 78px clamp(22px, 4vw, 64px) 72px; }
-.hero-photo { position: absolute; inset: 0 0 0 43%; background: linear-gradient(90deg, var(--bg) 0%, rgba(var(--scrim-rgb), .92) 5%, rgba(var(--scrim-rgb), .18) 49%, rgba(var(--scrim-rgb), .04) 100%), linear-gradient(0deg, var(--bg), transparent 26%), url("https://images.unsplash.com/photo-1606471191009-63994c53433b?q=85&w=1600") center 55%/cover no-repeat; }
+.hero-photo { position: absolute; inset: 0 0 0 43%; background: linear-gradient(90deg, var(--bg) 0%, rgba(var(--scrim-rgb), .92) 5%, rgba(var(--scrim-rgb), .18) 49%, rgba(var(--scrim-rgb), .04) 100%), linear-gradient(0deg, var(--bg), transparent 26%), url("assets/site/hero.jpg") center 55%/cover no-repeat; }
 .hero-content { position: relative; z-index: 1; width: min(580px, 52%); }
 .eyebrow { margin: 0 0 18px; color: var(--gold); text-transform: uppercase; font-size: 12px; letter-spacing: .19em; font-weight: 600; }
 .hero .eyebrow { display: flex; align-items: center; gap: 14px; }
@@ -114,7 +116,7 @@ h1 em, h2 em { color: var(--gold); font: italic 600 1em/.98 var(--serif); letter
 .detail-item small { display: block; color: var(--muted); font-size: 12px; }
 .detail-icon { color: var(--gold); font-size: 20px; line-height: 1; }
 .detail-icon.star { font-size: 16px; }
-.seal { position: absolute; z-index: 2; left: 43%; bottom: 74px; width: 100px; height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid var(--gold); border-radius: 50%; color: var(--gold); transform: rotate(-9deg); }
+.seal { position: absolute; z-index: 2; left: auto; right: -150px; bottom: 140px; width: 100px; height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid var(--gold); border-radius: 50%; color: var(--gold); transform: rotate(-9deg); }
 .seal strong { font: italic 700 24px var(--serif); }
 .seal span { text-align: center; font-size: 9px; letter-spacing: .1em; line-height: 1.4; }
 
@@ -156,7 +158,7 @@ h2 { margin: 0; font-size: clamp(36px, 4vw, 53px); line-height: 1.1; letter-spac
 .notice.error, .form-error { border-color: rgba(255,112,91,.5); color: var(--error-ink); }
 
 .story-section { min-height: 520px; display: grid; grid-template-columns: 1fr 1fr; background: var(--section-bg); }
-.story-photo { min-height: 500px; background: url("https://images.unsplash.com/photo-1719041951326-7e45091de17b?q=85&w=1000") center/cover no-repeat; }
+.story-photo { min-height: 500px; background: url("assets/site/story.jpg") center/cover no-repeat; }
 .story-content { position: relative; align-self: center; max-width: 620px; padding: 70px clamp(34px, 7vw, 105px); }
 .story-content h2 { margin-bottom: 24px; }
 .story-content > p:not(.eyebrow) { color: var(--muted); line-height: 1.8; }
@@ -179,6 +181,10 @@ h2 { margin: 0; font-size: clamp(36px, 4vw, 53px); line-height: 1.1; letter-spac
 .tracking-card h3 { margin: 0 0 5px; font: 600 20px var(--serif); }
 .tracking-card p { margin: 0; color: var(--muted); font-size: 13px; }
 .status-pill { align-self: start; padding: 6px 12px; color: var(--gold); border: 1px solid rgba(229,174,74,.45); font-size: 12px; }
+.tracking-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 14px 24px; margin-top: 22px; }
+.tracking-actions .button { min-height: 48px; }
+.tracking-actions p { flex-basis: 100%; }
+.cart-blocked { margin: 0 0 12px; color: var(--gold); font-size: 13px; line-height: 1.5; }
 .status-steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 24px; }
 .status-step { color: var(--dim); text-align: center; font-size: 11px; }
 .status-step::before { content: ""; display: block; width: 10px; height: 10px; margin: 0 auto 8px; border-radius: 50%; background: var(--step-dot); }
@@ -278,7 +284,7 @@ h2 { margin: 0; font-size: clamp(36px, 4vw, 53px); line-height: 1.1; letter-spac
   .hero { min-height: 660px; }
   .hero-content { width: 65%; }
   .hero-photo { left: 32%; opacity: .88; }
-  .seal { left: auto; right: 7%; bottom: 45px; }
+  .seal { left: auto; right: -120px; bottom: 150px; }
   .menu-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .story-content { padding: 55px 40px; }
   .visit-card { padding: 20px 16px; }
@@ -297,7 +303,7 @@ h2 { margin: 0; font-size: clamp(36px, 4vw, 53px); line-height: 1.1; letter-spac
   .table-chip { display: block; padding: 5px 7px; font-size: 10px; }
   .mobile-menu-toggle { display: block; padding: 4px; }
   .hero { min-height: 710px; align-items: flex-start; padding: 85px 22px 32px; }
-  .hero-photo { inset: 0; opacity: .7; background-image: linear-gradient(90deg, rgba(var(--scrim-rgb), .94), rgba(var(--scrim-rgb), .48)), linear-gradient(0deg, var(--bg), transparent 38%), url("https://images.unsplash.com/photo-1606471191009-63994c53433b?q=85&w=1200"); background-position: center, center, 58% center; }
+  .hero-photo { inset: 0; opacity: .7; background-image: linear-gradient(90deg, rgba(var(--scrim-rgb), .94), rgba(var(--scrim-rgb), .48)), linear-gradient(0deg, var(--bg), transparent 38%), url("assets/site/hero.jpg"); background-position: center, center, 58% center; }
   .hero-content { width: 100%; }
   h1 { font-size: clamp(51px, 14vw, 70px); }
   .hero-copy { max-width: 430px; font-size: 15px; }
