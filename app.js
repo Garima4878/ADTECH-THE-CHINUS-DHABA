@@ -159,10 +159,14 @@
   }
 
   function money(value) {
+    // Whole rupees for menu prices; paise only when the amount has them (e.g. totals with 5% tax: ₹47.25),
+    // so the website shows exactly what Razorpay charges.
+    const paise = Math.round(Number(value) * 100) % 100 !== 0;
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
-      maximumFractionDigits: 0
+      minimumFractionDigits: paise ? 2 : 0,
+      maximumFractionDigits: paise ? 2 : 0
     }).format(value);
   }
 
@@ -707,6 +711,13 @@
       if (order && order.status) {
         state.order.status = currentOrderStatus(order.status);
         if (order.total != null && Number.isFinite(Number(order.total))) state.order.total = Number(order.total);
+        if (String(order.paymentStatus || "").toLowerCase() === "paid") {
+          state.order.paymentStatus = "paid";
+        } else if (ONLINE_PAYMENTS && ["pending", "failed"].includes(state.order.paymentStatus)) {
+          // Phones often don't come back through Razorpay's redirect (payment finished in another tab or app),
+          // so ask Razorpay quietly while an online payment is outstanding.
+          await verifyPaymentQuietly();
+        }
         writeStorage(ORDER_STORAGE_KEY, state.order);
         renderTracking();
         if (state.order.status === "Served") {
@@ -716,6 +727,22 @@
       }
     } catch (error) {
       console.warn(`Could not refresh order ${state.order.orderId}.`, error);
+    }
+  }
+
+  async function verifyPaymentQuietly() {
+    try {
+      const result = await apiRequest("/api/payments/verify", {
+        method: "POST",
+        body: JSON.stringify({ orderId: state.order.orderId, paymentReference: null })
+      });
+      if (String(result && (result.paymentStatus || result.status) || "").toLowerCase() === "paid") {
+        state.order.paymentStatus = "paid";
+        state.order.status = currentOrderStatus(result.orderStatus || state.order.status);
+        showToast("Payment received — your order is confirmed.");
+      }
+    } catch (error) {
+      console.warn(`Could not check payment for ${state.order.orderId}.`, error);
     }
   }
 
@@ -1082,6 +1109,10 @@
   checkTable();
   verifyPaymentReturn();
   startOrderPolling();
+  // Coming back to the tab (e.g. after paying in the Razorpay tab) refreshes the order and payment at once.
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") syncOrder();
+  });
   // The browser-only staff board is for demo mode. With a live backend, staff use the admin dashboard.
   $("#staff-open").hidden = Boolean(API_BASE);
 
