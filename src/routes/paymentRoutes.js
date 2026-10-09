@@ -1,6 +1,12 @@
 const express = require('express');
 const { body, param } = require('express-validator');
-const { createPayment, verifyPayment, getPaymentByOrder } = require('../controllers/paymentController');
+const {
+  createPayment,
+  verifyPayment,
+  initiatePayment,
+  verifyPaymentLink,
+  getPaymentByOrder,
+} = require('../controllers/paymentController');
 const { handleValidationErrors } = require('../middleware/validate');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
@@ -16,8 +22,22 @@ router.post(
   createPayment
 );
 
+// Hosted checkout used by the customer website: returns { checkoutUrl } for a Razorpay Payment Link.
+router.post(
+  '/initiate',
+  [
+    body('orderId').notEmpty().withMessage('Order ID is required.'),
+    body('returnUrl').notEmpty().withMessage('returnUrl is required.'),
+  ],
+  handleValidationErrors,
+  initiatePayment
+);
+
+// Razorpay Checkout popup (signature from the client); requests without a signature
+// fall through to the Payment Link check below.
 router.post(
   '/verify',
+  (req, res, next) => (req.body && req.body.signature ? next() : next('route')),
   [
     body('orderId').notEmpty().withMessage('Order ID is required.'),
     body('paymentId').notEmpty().withMessage('paymentId is required.'),
@@ -25,6 +45,13 @@ router.post(
   ],
   handleValidationErrors,
   verifyPayment
+);
+
+router.post(
+  '/verify',
+  [body('orderId').notEmpty().withMessage('Order ID is required.')],
+  handleValidationErrors,
+  verifyPaymentLink
 );
 
 router.get(

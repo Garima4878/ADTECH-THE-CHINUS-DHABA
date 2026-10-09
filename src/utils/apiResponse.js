@@ -1,8 +1,10 @@
-const sendSuccess = (res, statusCode = 200, message, data = {}) => {
+// `extra` adds top-level fields for clients that read a flat response (the customer website).
+const sendSuccess = (res, statusCode = 200, message, data = {}, extra = {}) => {
   return res.status(statusCode).json({
     success: true,
     message,
     data,
+    ...extra,
   });
 };
 

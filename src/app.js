@@ -14,10 +14,13 @@ const tableRoutes = require('./routes/tableRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
+const { allowedOrigins } = require('./config/clientOrigins');
 
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CLIENT_URL || '*',
+  // Set CLIENT_URL in production. When it is empty (local development) the request origin is echoed,
+  // because browsers reject a `*` origin on requests that send cookies (the website uses credentials: include).
+  origin: allowedOrigins.length ? allowedOrigins : true,
   credentials: true,
 }));
 app.use(express.json({ limit: '1mb' }));

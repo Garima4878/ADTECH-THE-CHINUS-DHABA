@@ -2,6 +2,7 @@ const Category = require('../models/Category');
 const MenuItem = require('../models/MenuItem');
 const ApiError = require('../utils/ApiError');
 const { sendSuccess, sendError } = require('../utils/apiResponse');
+const { menuItemForWebsite } = require('../utils/websiteFormat');
 
 const getMenuItems = async (req, res, next) => {
   try {
@@ -18,7 +19,7 @@ const getMenuItems = async (req, res, next) => {
 
     const menu = await MenuItem.find(filter).populate('category').sort({ createdAt: -1 });
 
-    return sendSuccess(res, 200, 'Menu fetched successfully.', { menu });
+    return sendSuccess(res, 200, 'Menu fetched successfully.', { menu }, { items: menu.map(menuItemForWebsite) });
   } catch (error) {
     return next(error);
   }

@@ -6,6 +6,7 @@ const MenuItem = require('../models/MenuItem');
 const Payment = require('../models/Payment');
 const ApiError = require('../utils/ApiError');
 const { sendSuccess, sendError } = require('../utils/apiResponse');
+const { orderForWebsite } = require('../utils/websiteFormat');
 
 const ORDER_STATUS_FLOW = ['Pending', 'Accepted', 'Preparing', 'Ready', 'Served/Completed'];
 
@@ -16,13 +17,19 @@ const buildItemTotals = async (items) => {
   let subtotal = 0;
 
   for (const itemEntry of items) {
-    if (!itemEntry || !itemEntry.itemId || !itemEntry.quantity || Number(itemEntry.quantity) <= 0) {
+    // The customer website sends `menuItemId`; other clients send `itemId`.
+    const itemId = itemEntry && (itemEntry.itemId || itemEntry.menuItemId);
+    if (!itemId || !itemEntry.quantity || Number(itemEntry.quantity) <= 0) {
       throw new ApiError(400, 'Each item must include a valid itemId and quantity greater than zero.');
     }
 
-    const item = await MenuItem.findById(itemEntry.itemId).populate('category');
+    if (!mongoose.isValidObjectId(itemId)) {
+      throw new ApiError(400, `Invalid menu item id: ${itemId}`);
+    }
+
+    const item = await MenuItem.findById(itemId).populate('category');
     if (!item) {
-      throw new ApiError(404, `Menu item not found for id: ${itemEntry.itemId}`);
+      throw new ApiError(404, `Menu item not found for id: ${itemId}`);
     }
 
     if (!item.isAvailable) {
@@ -94,7 +101,8 @@ const getOrderById = async (req, res, next) => {
 
 const createOrder = async (req, res, next) => {
   try {
-    const { tableId, items, customerName } = req.body;
+    const { tableId, items } = req.body;
+    const customerName = req.body.customerName || (req.body.customer && req.body.customer.name);
 
     if (!tableId) {
       return sendError(res, 400, 'Table ID is required to create an order.');
@@ -131,7 +139,26 @@ const createOrder = async (req, res, next) => {
       paymentStatus: 'Unpaid',
     });
 
-    return sendSuccess(res, 201, 'Order created successfully.', { order });
+    return sendSuccess(res, 201, 'Order created successfully.', { order }, orderForWebsite(order));
+  } catch (error) {
+    return next(error);
+  }
+};
+
+// Public order tracking for customers by Order ID (e.g. ORD-...). MongoDB ids fall through to the staff route.
+const getOrderStatusForCustomer = async (req, res, next) => {
+  try {
+    if (mongoose.isValidObjectId(req.params.orderId)) {
+      return next('route');
+    }
+
+    const order = await Order.findOne({ orderId: req.params.orderId });
+    if (!order) {
+      return next(new ApiError(404, 'Order not found.'));
+    }
+
+    const publicOrder = orderForWebsite(order);
+    return sendSuccess(res, 200, 'Order status fetched successfully.', { order: publicOrder }, publicOrder);
   } catch (error) {
     return next(error);
   }
@@ -216,6 +243,7 @@ module.exports = {
   getPendingOrders,
   getOrdersByTable,
   getOrderById,
+  getOrderStatusForCustomer,
   createOrder,
   updateOrderStatus,
   createPaymentForOrder,

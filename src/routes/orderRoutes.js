@@ -7,6 +7,7 @@ const {
   getPendingOrders,
   getOrdersByTable,
   getOrderById,
+  getOrderStatusForCustomer,
   createOrder,
   updateOrderStatus,
   createPaymentForOrder,
@@ -17,6 +18,7 @@ const router = express.Router();
 router.get('/', protect, authorize('admin', 'staff'), getOrders);
 router.get('/pending', protect, authorize('admin', 'staff'), getPendingOrders);
 router.get('/table/:tableId', protect, authorize('admin', 'staff'), getOrdersByTable);
+router.get('/:orderId', getOrderStatusForCustomer);
 router.get('/:id', protect, authorize('admin', 'staff'), [param('id').isMongoId().withMessage('Invalid order ID.')], handleValidationErrors, getOrderById);
 
 router.post(
