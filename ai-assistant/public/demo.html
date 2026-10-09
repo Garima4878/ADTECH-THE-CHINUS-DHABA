@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chinu AI Demo</title>
+<style>
+  :root { --brand:#7a1f2b; --accent:#e8772e; --bg:#fffaf5; --card:#fff; --text:#2b1a14; --muted:#7b6a62; --border:#ead8cb; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#1a1311; --card:#241b18; --text:#f6ece6; --muted:#bba99f; --border:#3d2e28; } }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--text); padding-bottom:90px; }
+  header { background:var(--brand); color:#fff; padding:18px 16px; }
+  header h1 { margin:0; font-size:20px; } header p { margin:4px 0 0; opacity:.85; font-size:13px; }
+  .table { display:inline-block; margin-top:10px; background:rgba(255,255,255,.18); padding:6px 10px; border-radius:999px; font-size:13px; font-weight:600; }
+  .banner { margin:12px 16px 0; padding:10px 12px; border:1px dashed var(--accent); border-radius:10px; font-size:13px; color:var(--muted); }
+  nav { display:flex; gap:8px; overflow-x:auto; padding:12px 16px; position:sticky; top:0; background:var(--bg); z-index:2; }
+  nav a { flex:none; text-decoration:none; color:var(--text); border:1px solid var(--border); padding:8px 12px; border-radius:999px; font-size:14px; }
+  main { padding:0 16px; max-width:720px; margin:0 auto; }
+  h2 { font-size:17px; margin:18px 0 8px; }
+  .item { display:flex; gap:12px; align-items:center; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:8px; }
+  .item .info { flex:1; min-width:0; } .item .name { font-weight:600; } .item .hi { color:var(--muted); font-size:13px; }
+  .item .desc { font-size:13px; color:var(--muted); margin-top:2px; } .item .price { font-size:14px; margin-top:4px; font-weight:600; }
+  .item button { border:0; background:var(--accent); color:#fff; border-radius:10px; padding:10px 14px; font-weight:600; min-height:40px; cursor:pointer; }
+  .item button[disabled] { background:var(--muted); }
+  .cartbar { position:fixed; left:0; right:0; bottom:0; background:var(--brand); color:#fff; display:flex; justify-content:space-between; align-items:center; padding:14px 16px calc(14px + env(safe-area-inset-bottom)); font-weight:600; }
+  .toast { position:fixed; left:50%; top:16px; transform:translateX(-50%); background:#2b1a14; color:#fff; padding:10px 14px; border-radius:10px; font-size:14px; opacity:0; transition:opacity .2s; pointer-events:none; }
+  .toast.show { opacity:1; }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="rname">The Chinu Family Restaurant &amp; Dhaba</h1>
+  <p id="tagline">The Nonveg King Of Multai</p>
+  <span class="table" id="table"></span>
+</header>
+<div class="banner">Demo page for the AI assistant module. The real menu, cart and checkout are built by the frontend team - this page only shows how the widget plugs in.</div>
+<nav id="nav"></nav>
+<main id="menu"><p>Loading menu…</p></main>
+<div class="cartbar"><span id="cartCount">Cart: 0 items</span><span>View cart →</span></div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+  const params = new URLSearchParams(location.search);
+  if (!params.get('table')) { params.set('table', '5'); history.replaceState(null, '', '?' + params); }
+  document.getElementById('table').textContent = 'Table ' + params.get('table');
+
+  const cart = new Map();
+  const toast = document.getElementById('toast');
+  function showToast(text) { toast.textContent = text; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 1400); }
+  function addToCart(id, name) {
+    cart.set(id, (cart.get(id) || 0) + 1);
+    const count = [...cart.values()].reduce((a, b) => a + b, 0);
+    document.getElementById('cartCount').textContent = `Cart: ${count} item${count === 1 ? '' : 's'}`;
+    showToast(`${name} added to cart`);
+  }
+  // This is the integration point the frontend team implements: the widget never touches the cart directly.
+  window.addEventListener('chinu:add-to-cart', (e) => addToCart(e.detail.itemId, e.detail.name));
+
+  fetch('/api/ai/knowledge-base').then((r) => r.json()).then((kb) => {
+    const menu = document.getElementById('menu');
+    const nav = document.getElementById('nav');
+    menu.textContent = '';
+    for (const cat of kb.categories) {
+      const items = kb.items.filter((i) => i.category === cat.id);
+      if (!items.length) continue;
+      const link = document.createElement('a'); link.href = '#' + cat.id; link.textContent = cat.name; nav.appendChild(link);
+      const h = document.createElement('h2'); h.id = cat.id; h.textContent = `${cat.name} · ${cat.name_hi}`; menu.appendChild(h);
+      for (const item of items) {
+        const row = document.createElement('div'); row.className = 'item';
+        const info = document.createElement('div'); info.className = 'info';
+        const name = document.createElement('div'); name.className = 'name'; name.textContent = item.name;
+        const hi = document.createElement('div'); hi.className = 'hi'; hi.textContent = item.name_hi || '';
+        const desc = document.createElement('div'); desc.className = 'desc'; desc.textContent = item.description;
+        const price = document.createElement('div'); price.className = 'price'; price.textContent = item.price != null ? '₹' + item.price : 'Price: ask staff';
+        info.append(name, hi, desc, price);
+        const btn = document.createElement('button'); btn.textContent = item.available ? 'Add' : 'Sold out'; btn.disabled = !item.available;
+        btn.addEventListener('click', () => addToCart(item.id, item.name));
+        row.append(info, btn); menu.appendChild(row);
+      }
+    }
+  }).catch(() => { document.getElementById('menu').textContent = 'Could not load menu.'; });
+</script>
+<script src="/widget/chat-widget.js" data-api-base="" data-bottom-offset="72" defer></script>
+</body>
+</html>

@@ -1,0 +1,268 @@
+{
+  "_meta": {
+    "version": "0.1.0-draft",
+    "last_updated": "2026-09-29",
+    "source": "Dish names transcribed from the restaurant's wall banners and signboard (photos in assets/photos/). Only Veg Thali has a price printed (Rs 100).",
+    "status": "DRAFT - prices marked null are NOT confirmed. The AI must never state a price for these. Replace with the approved menu from the team/backend before launch.",
+    "currency": "INR"
+  },
+
+  "restaurant": {
+    "name": "The Chinu Family Restaurant & Dhaba",
+    "name_hi": "द चिनू फैमिली रेस्टॉरेन्ट एण्ड ढाबा",
+    "tagline": "The Nonveg King Of Multai",
+    "tagline_hi": "स्वाद के साथ.. समझौता नही...",
+    "tagline_hi_en": "No compromise on taste",
+    "food_type": "Veg & Non-veg (known for non-veg)",
+    "city": "Multai",
+    "address": null,
+    "phone": null,
+    "opening_hours": null,
+    "notes": [
+      "Food orders may take around 15 minutes to prepare (from the notice board inside the restaurant).",
+      "Family cabins are available for dining."
+    ]
+  },
+
+  "categories": [
+    { "id": "chicken", "name": "Chicken", "name_hi": "चिकन" },
+    { "id": "mutton", "name": "Mutton", "name_hi": "मटन" },
+    { "id": "egg", "name": "Egg", "name_hi": "अण्डा" },
+    { "id": "fish", "name": "Fish", "name_hi": "फिश" },
+    { "id": "biryani", "name": "Biryani", "name_hi": "बिरयानी" },
+    { "id": "thali", "name": "Thali", "name_hi": "थाली" },
+    { "id": "roti", "name": "Roti", "name_hi": "रोटी" },
+    { "id": "other", "name": "Other", "name_hi": "अन्य" }
+  ],
+
+  "items": [
+    {
+      "id": "chicken-biryani",
+      "name": "Chicken Biryani",
+      "name_hi": "चिकन बिरयानी",
+      "category": "biryani",
+      "main_ingredient": "chicken",
+      "price": null,
+      "is_veg": false,
+      "available": true,
+      "meal_type": ["lunch", "dinner"],
+      "description": "Rice biryani cooked with chicken pieces.",
+      "photo": "assets/photos/banner-biryani.jpg"
+    },
+    {
+      "id": "mutton-biryani",
+      "name": "Mutton Biryani",
+      "name_hi": "मटन बिरयानी",
+      "category": "biryani",
+      "main_ingredient": "mutton",
+      "price": null,
+      "is_veg": false,
+      "available": true,
+      "meal_type": ["lunch", "dinner"],
+      "description": "Rice biryani cooked with mutton pieces.",
+      "photo": "assets/photos/banner-biryani.jpg"
+    },
+    {
+      "id": "egg-biryani",
+      "name": "Egg Biryani",
+      "name_hi": "अण्डा बिरयानी",
+      "category": "biryani",
+      "main_ingredient": "egg",
+      "price": null,
+      "is_veg": false,
+      "available": true,
+      "meal_type": ["lunch", "dinner"],
+      "description": "Rice biryani served with boiled eggs.",
+      "photo": "assets/photos/banner-biryani.jpg"
+    },
+    {
+      "id": "special-biryani",
+      "name": "Special Biryani",
+      "name_hi": "स्पेशल बिरयानी",
+      "category": "biryani",
+      "main_ingredient": null,
+      "price": null,
+      "is_veg": false,
+      "available": true,
+      "meal_type": ["lunch", "dinner"],
+      "description": "The house special biryani. Ask staff for today's details.",
+      "photo": "assets/photos/banner-biryani.jpg"
+    },
+    {
+      "id": "chicken-roast",
+      "name": "Chicken Roast",
+      "name_hi": "चिकन रोस्ट",
+      "category": "chicken",
+      "main_ingredient": "chicken",
+      "price": null,
+      "is_veg": false,
+      "available": true,
+      "meal_type": ["lunch", "dinner", "snack"],
+      "description": "Roasted chicken pieces.",
+      "photo": "assets/photos/banner-roast-fish-korma.jpg"
+    },
+    {
+      "id": "chicken-fry",
+      "name": "Chicken Fry",
+      "name_hi": "चिकन फ्राय",
+      "category": "chicken",
+      "main_ingredient": "chicken",
+      "price": null,
+      "is_veg": false,
+      "available": true,
+      "meal_type": ["lunch", "dinner", "snack"],
+      "description": "Fried chicken, dhaba style.",
+      "photo": "assets/photos/banner-biryani.jpg"
+    },
+    {
+      "id": "chicken-handi",
+      "name": "Chicken Handi",
+      "name_hi": "चिकन हाण्डी",
+      "category": "chicken",
+      "main_ingredient": "chicken",
+      "price": null,
+      "is_veg": false,
+      "available": true,
+      "meal_type": ["lunch", "dinner"],
+      "description": "Chicken curry served in a handi (clay pot). Goes well with roti.",
+      "photo": "assets/photos/banner-handi-special-thali.jpg"
+    },
+    {
+      "id": "mutton-handi",
+      "name": "Mutton Handi",
+      "name_hi": "मटन हाण्डी",
+      "category": "mutton",
+      "main_ingredient": "mutton",
+      "price": null,
+      "is_veg": false,
+      "available": true,
+      "meal_type": ["lunch", "dinner"],
+      "description": "Mutton curry served in a handi (clay pot). Goes well with roti.",
+      "photo": "assets/photos/banner-handi-special-thali.jpg"
+    },
+    {
+      "id": "mutton-korma",
+      "name": "Mutton Korma",
+      "name_hi": "मटन कोरमा",
+      "category": "mutton",
+      "main_ingredient": "mutton",
+      "price": null,
+      "is_veg": false,
+      "available": true,
+      "meal_type": ["lunch", "dinner"],
+      "description": "Mutton cooked in a thick korma gravy.",
+      "photo": "assets/photos/banner-biryani.jpg"
+    },
+    {
+      "id": "mutton-paya-korma",
+      "name": "Mutton Paya Korma",
+      "name_hi": "मटन पाया कोरमा",
+      "category": "mutton",
+      "main_ingredient": "mutton",
+      "price": null,
+      "is_veg": false,
+      "available": true,
+      "meal_type": ["lunch", "dinner"],
+      "description": "Korma made with mutton paya (trotters).",
+      "photo": "assets/photos/banner-roast-fish-korma.jpg"
+    },
+    {
+      "id": "special-chicken-mutton-korma",
+      "name": "Special Chicken & Mutton Korma",
+      "name_hi": "स्पेशल चिकन एंड मटन कोरमा",
+      "category": "mutton",
+      "main_ingredient": "mixed",
+      "price": null,
+      "is_veg": false,
+      "available": true,
+      "meal_type": ["lunch", "dinner"],
+      "description": "House special korma with both chicken and mutton.",
+      "photo": "assets/photos/banner-roast-fish-korma.jpg"
+    },
+    {
+      "id": "fish-roast",
+      "name": "Fish Roast",
+      "name_hi": "फिश रोस्ट",
+      "category": "fish",
+      "main_ingredient": "fish",
+      "price": null,
+      "is_veg": false,
+      "available": true,
+      "meal_type": ["lunch", "dinner", "snack"],
+      "description": "Roasted whole fish served with lemon.",
+      "photo": "assets/photos/poster-fish-roti.jpg"
+    },
+    {
+      "id": "special-thali",
+      "name": "Special Thali",
+      "name_hi": "स्पेशल थाली",
+      "category": "thali",
+      "main_ingredient": "mixed",
+      "price": null,
+      "is_veg": false,
+      "available": true,
+      "meal_type": ["lunch", "dinner"],
+      "description": "Full non-veg thali with curry, rice, roti and sides. Ask staff for today's thali items.",
+      "photo": "assets/photos/banner-handi-special-thali.jpg"
+    },
+    {
+      "id": "veg-thali",
+      "name": "Veg Thali",
+      "name_hi": "वेज थाली",
+      "category": "thali",
+      "main_ingredient": "veg",
+      "price": 100,
+      "is_veg": true,
+      "available": true,
+      "meal_type": ["lunch", "dinner"],
+      "description": "Vegetarian thali with sabzi, dal, rice and roti.",
+      "photo": "assets/photos/banner-veg-thali-rotis.jpg"
+    },
+    {
+      "id": "jowar-roti",
+      "name": "Jowar Roti",
+      "name_hi": "ज्वार रोटी",
+      "category": "roti",
+      "main_ingredient": "veg",
+      "price": null,
+      "is_veg": true,
+      "available": true,
+      "meal_type": ["lunch", "dinner"],
+      "description": "Roti made from jowar (sorghum) flour.",
+      "photo": "assets/photos/banner-roast-fish-korma.jpg"
+    },
+    {
+      "id": "bajra-roti",
+      "name": "Bajra Roti",
+      "name_hi": "बाजरा रोटी",
+      "category": "roti",
+      "main_ingredient": "veg",
+      "price": null,
+      "is_veg": true,
+      "available": true,
+      "meal_type": ["lunch", "dinner"],
+      "description": "Roti made from bajra (pearl millet) flour.",
+      "photo": "assets/photos/banner-veg-thali-rotis.jpg"
+    },
+    {
+      "id": "makka-roti",
+      "name": "Makka Roti",
+      "name_hi": "मक्का रोटी",
+      "category": "roti",
+      "main_ingredient": "veg",
+      "price": null,
+      "is_veg": true,
+      "available": true,
+      "meal_type": ["lunch", "dinner"],
+      "description": "Roti made from makka (maize) flour.",
+      "photo": "assets/photos/banner-veg-thali-rotis.jpg"
+    }
+  ],
+
+  "offers": [],
+
+  "fallback": {
+    "message": "I'm not sure about that. Please check the Menu tab or ask our staff at the counter.",
+    "message_hi": "मुझे इसकी जानकारी नहीं है। कृपया मेनू देखें या काउंटर पर स्टाफ से पूछें।"
+  }
+}
