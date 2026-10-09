@@ -8,11 +8,24 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    // Staff log in with their username or email, so each account needs at least one of them.
     email: {
       type: String,
-      required: true,
       unique: true,
+      sparse: true,
       lowercase: true,
+      trim: true,
+    },
+    username: {
+      type: String,
+      unique: true,
+      sparse: true,
+      lowercase: true,
+      trim: true,
+    },
+    phone: {
+      type: String,
+      default: '',
       trim: true,
     },
     password: {
@@ -20,14 +33,25 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 6,
     },
+    // staff = restaurant employee, manager = runs the floor, admin = also manages staff accounts.
     role: {
       type: String,
-      enum: ['admin', 'staff', 'customer'],
+      enum: ['admin', 'manager', 'staff', 'customer'],
       default: 'customer',
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
     },
   },
   { timestamps: true }
 );
+
+userSchema.pre('validate', function requireLoginName() {
+  if (!this.email && !this.username) {
+    this.invalidate('username', 'A username or email is required.');
+  }
+});
 
 userSchema.pre('save', async function nextHook() {
   if (!this.isModified('password')) return;

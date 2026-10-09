@@ -26,6 +26,17 @@ const tableSchema = new mongoose.Schema(
       enum: ['active', 'inactive'],
       default: 'active',
     },
+    capacity: {
+      type: Number,
+      default: 4,
+      min: 1,
+    },
+    // Set by staff on the admin dashboard. "Occupied" is also shown automatically while the table has an open order.
+    floorStatus: {
+      type: String,
+      enum: ['Free', 'Occupied', 'Reserved', 'Cleaning'],
+      default: 'Free',
+    },
   },
   { timestamps: true }
 );

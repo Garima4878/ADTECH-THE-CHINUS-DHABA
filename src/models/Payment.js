@@ -50,6 +50,15 @@ const paymentSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    method: {
+      type: String,
+      enum: ['Cash', 'UPI', 'Card', 'NetBanking', 'Wallet', null],
+      default: null,
+    },
+    paidAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );

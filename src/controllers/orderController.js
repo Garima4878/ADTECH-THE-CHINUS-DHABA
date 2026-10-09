@@ -102,7 +102,8 @@ const getOrderById = async (req, res, next) => {
 const createOrder = async (req, res, next) => {
   try {
     const { tableId, items } = req.body;
-    const customerName = req.body.customerName || (req.body.customer && req.body.customer.name);
+    const customer = req.body.customer || {};
+    const customerName = req.body.customerName || customer.name;
 
     if (!tableId) {
       return sendError(res, 400, 'Table ID is required to create an order.');
@@ -131,6 +132,9 @@ const createOrder = async (req, res, next) => {
       table: table._id,
       tableId: table.tableId,
       customerName: customerName || 'Guest',
+      customerPhone: String(req.body.customerPhone || customer.phone || '').slice(0, 20),
+      notes: String(req.body.notes || customer.note || '').slice(0, 500),
+      statusHistory: [{ status: 'Pending', at: new Date(), by: customerName || 'Guest' }],
       items: validatedItems,
       subtotal,
       tax,
@@ -164,40 +168,52 @@ const getOrderStatusForCustomer = async (req, res, next) => {
   }
 };
 
+const VALID_STATUSES = ['Pending', 'Accepted', 'Preparing', 'Ready', 'Served/Completed', 'Cancelled'];
+
+/**
+ * Applies a status change to an order (shared by the staff API and the admin dashboard API).
+ * Returns an error message when the change isn't allowed, otherwise updates the order and its history.
+ */
+const applyStatusChange = (order, status, by = '') => {
+  if (!status || !VALID_STATUSES.includes(status)) {
+    return 'Please provide a valid order status.';
+  }
+
+  if (order.status === 'Cancelled') {
+    return 'This order is already cancelled and cannot be updated.';
+  }
+
+  if (order.status === 'Served/Completed' && status !== 'Served/Completed') {
+    return 'A served order cannot be moved backward or cancelled.';
+  }
+
+  const currentIndex = ORDER_STATUS_FLOW.indexOf(order.status);
+  const nextIndex = status === 'Cancelled' ? -1 : ORDER_STATUS_FLOW.indexOf(status);
+
+  if (status !== 'Cancelled' && nextIndex < currentIndex) {
+    return 'Invalid status transition.';
+  }
+
+  if (status === 'Cancelled') {
+    order.status = 'Cancelled';
+    order.paymentStatus = 'Cancelled';
+  } else {
+    order.status = status;
+  }
+  order.statusHistory.push({ status: order.status, at: new Date(), by });
+  return null;
+};
+
 const updateOrderStatus = async (req, res, next) => {
   try {
-    const { status } = req.body;
-    const validStatuses = ['Pending', 'Accepted', 'Preparing', 'Ready', 'Served/Completed', 'Cancelled'];
-
-    if (!status || !validStatuses.includes(status)) {
-      return sendError(res, 400, 'Please provide a valid order status.');
-    }
-
     const order = await Order.findById(req.params.id);
     if (!order) {
       return next(new ApiError(404, 'Order not found.'));
     }
 
-    if (order.status === 'Cancelled') {
-      return sendError(res, 400, 'This order is already cancelled and cannot be updated.');
-    }
-
-    if (order.status === 'Served/Completed' && status !== 'Served/Completed') {
-      return sendError(res, 400, 'A served order cannot be moved backward or cancelled.');
-    }
-
-    const currentIndex = ORDER_STATUS_FLOW.indexOf(order.status);
-    const nextIndex = status === 'Cancelled' ? -1 : ORDER_STATUS_FLOW.indexOf(status);
-
-    if (status !== 'Cancelled' && nextIndex < currentIndex) {
-      return sendError(res, 400, 'Invalid status transition.');
-    }
-
-    if (status === 'Cancelled') {
-      order.status = 'Cancelled';
-      order.paymentStatus = 'Cancelled';
-    } else {
-      order.status = status;
+    const problem = applyStatusChange(order, req.body.status, req.user && req.user.name);
+    if (problem) {
+      return sendError(res, 400, problem);
     }
 
     await order.save();
@@ -246,5 +262,6 @@ module.exports = {
   getOrderStatusForCustomer,
   createOrder,
   updateOrderStatus,
+  applyStatusChange,
   createPaymentForOrder,
 };

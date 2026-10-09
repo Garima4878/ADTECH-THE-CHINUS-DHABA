@@ -5,7 +5,8 @@
 //
 // The menu comes from ai-assistant/data/restaurant-knowledge-base.json, the same list the website
 // (MENU_SEED in app.js) and the AI assistant use, so names and prices match everywhere.
-// Set SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD to also create an admin login for the staff/admin routes.
+// Set SEED_ADMIN_PASSWORD (and optionally SEED_ADMIN_USERNAME, default "admin", and SEED_ADMIN_EMAIL)
+// to create the first admin login for the restaurant dashboard.
 require('dotenv').config();
 const path = require('path');
 const mongoose = require('mongoose');
@@ -40,6 +41,7 @@ const seed = async ({ tableCount = Number(process.env.SEED_TABLES) || 10, log = 
         description: item.description,
         imageUrl: `assets/menu/${item.id}.jpg`,
         isAvailable: item.available,
+        isVeg: Boolean(item.is_veg),
       },
       { upsert: true, new: true, setDefaultsOnInsert: true }
     );
@@ -54,14 +56,21 @@ const seed = async ({ tableCount = Number(process.env.SEED_TABLES) || 10, log = 
     );
   }
 
+  // First admin for the dashboard. Other staff accounts are then created on the dashboard's Staff page.
   const { SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD } = process.env;
-  if (SEED_ADMIN_EMAIL && SEED_ADMIN_PASSWORD) {
-    const admin = (await User.findOne({ email: SEED_ADMIN_EMAIL.toLowerCase() })) || new User({ email: SEED_ADMIN_EMAIL });
+  const adminUsername = (process.env.SEED_ADMIN_USERNAME || 'admin').toLowerCase();
+  if (SEED_ADMIN_PASSWORD) {
+    const lookup = [{ username: adminUsername }];
+    if (SEED_ADMIN_EMAIL) lookup.push({ email: SEED_ADMIN_EMAIL.toLowerCase() });
+    const admin = (await User.findOne({ $or: lookup })) || new User();
     admin.name = admin.name || 'Restaurant Admin';
+    admin.username = adminUsername;
+    if (SEED_ADMIN_EMAIL) admin.email = SEED_ADMIN_EMAIL.toLowerCase();
     admin.role = 'admin';
+    admin.isActive = true;
     admin.password = SEED_ADMIN_PASSWORD;
     await admin.save();
-    log(`Admin login ready: ${SEED_ADMIN_EMAIL}`);
+    log(`Admin login ready: username "${adminUsername}"${SEED_ADMIN_EMAIL ? ` or ${SEED_ADMIN_EMAIL}` : ''}`);
   }
 
   log(`Seeded ${Object.keys(categoryByKey).length} categories, ${kb.items.length} menu items, tables T01-T${String(tableCount).padStart(2, '0')}.`);

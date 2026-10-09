@@ -57,7 +57,7 @@ router.post(
 router.get(
   '/order/:orderId',
   protect,
-  authorize('admin', 'staff'),
+  authorize('admin', 'manager', 'staff'),
   [param('orderId').notEmpty().withMessage('Order ID is required.')],
   handleValidationErrors,
   getPaymentByOrder

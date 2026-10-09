@@ -15,11 +15,11 @@ const {
 
 const router = express.Router();
 
-router.get('/', protect, authorize('admin', 'staff'), getOrders);
-router.get('/pending', protect, authorize('admin', 'staff'), getPendingOrders);
-router.get('/table/:tableId', protect, authorize('admin', 'staff'), getOrdersByTable);
+router.get('/', protect, authorize('admin', 'manager', 'staff'), getOrders);
+router.get('/pending', protect, authorize('admin', 'manager', 'staff'), getPendingOrders);
+router.get('/table/:tableId', protect, authorize('admin', 'manager', 'staff'), getOrdersByTable);
 router.get('/:orderId', getOrderStatusForCustomer);
-router.get('/:id', protect, authorize('admin', 'staff'), [param('id').isMongoId().withMessage('Invalid order ID.')], handleValidationErrors, getOrderById);
+router.get('/:id', protect, authorize('admin', 'manager', 'staff'), [param('id').isMongoId().withMessage('Invalid order ID.')], handleValidationErrors, getOrderById);
 
 router.post(
   '/',
@@ -33,7 +33,7 @@ router.post(
 router.patch(
   '/:id/status',
   protect,
-  authorize('admin', 'staff'),
+  authorize('admin', 'manager', 'staff'),
   [
     param('id').isMongoId().withMessage('Invalid order ID.'),
     body('status').isIn(['Pending', 'Accepted', 'Preparing', 'Ready', 'Served/Completed', 'Cancelled']).withMessage('Invalid order status.'),
@@ -44,7 +44,7 @@ router.patch(
 router.post(
   '/:id/payment',
   protect,
-  authorize('admin', 'staff'),
+  authorize('admin', 'manager', 'staff'),
   [param('id').isMongoId().withMessage('Invalid order ID.')],
   handleValidationErrors,
   createPaymentForOrder

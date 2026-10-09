@@ -123,6 +123,7 @@ const verifyPayment = async (req, res, next) => {
     paymentRecord.paymentId = paymentId;
     paymentRecord.signature = signature;
     paymentRecord.status = 'paid';
+    paymentRecord.paidAt = new Date();
     await paymentRecord.save();
 
     order.paymentStatus = 'Paid';
@@ -145,6 +146,7 @@ const verifyPayment = async (req, res, next) => {
 // so nothing the browser sends is trusted as proof of payment.
 
 const PAYMENT_LINK_PREFIX = 'plink_';
+const RAZORPAY_METHODS = { upi: 'UPI', card: 'Card', emi: 'Card', netbanking: 'NetBanking', bank_transfer: 'NetBanking', wallet: 'Wallet' };
 
 const parseReturnUrl = (returnUrl) => {
   let url;
@@ -276,6 +278,8 @@ const verifyPaymentLink = async (req, res, next) => {
 
       paymentRecord.paymentId = captured.payment_id;
       paymentRecord.status = 'paid';
+      paymentRecord.paidAt = new Date();
+      paymentRecord.method = RAZORPAY_METHODS[captured.method] || null;
       await paymentRecord.save();
 
       order.paymentStatus = 'Paid';

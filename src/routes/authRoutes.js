@@ -2,12 +2,15 @@ const express = require('express');
 const { body } = require('express-validator');
 const { register, login, getCurrentUser } = require('../controllers/authController');
 const { handleValidationErrors } = require('../middleware/validate');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
+// Only an admin can create accounts. The first admin comes from `npm run seed` (SEED_ADMIN_*).
 router.post(
   '/register',
+  protect,
+  authorize('admin'),
   [
     body('name').isString().notEmpty().withMessage('Name is required.'),
     body('email').isEmail().withMessage('A valid email is required.'),
@@ -20,7 +23,9 @@ router.post(
 router.post(
   '/login',
   [
-    body('email').isEmail().withMessage('A valid email is required.'),
+    body('email').optional().isEmail().withMessage('A valid email is required.'),
+    body('username').optional().isString().trim(),
+    body().custom((value) => Boolean(value && (value.email || value.username))).withMessage('Username or email is required.'),
     body('password').notEmpty().withMessage('Password is required.'),
   ],
   handleValidationErrors,
