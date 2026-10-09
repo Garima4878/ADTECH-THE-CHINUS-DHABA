@@ -1,0 +1,15 @@
+# Netlify: restaurant admin dashboard (set the site's base directory to admin-dashboard).
+# Set VITE_API_BASE_URL (e.g. https://chinu-dhaba-api.onrender.com/api) in Netlify -> Site configuration ->
+# Environment variables before building.
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Single-page app: let React Router handle /orders, /kitchen, ... when the page is refreshed.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
