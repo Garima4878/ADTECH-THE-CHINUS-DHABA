@@ -19,6 +19,51 @@ export function extractPrices(text) {
   return prices;
 }
 
+/** The menu item named last in `text` (the dish a following price belongs to), or null. */
+function lastDishMentioned(text, items) {
+  const padded = ` ${normalize(text)} `;
+  let best = null;
+  let bestPos = -1;
+  for (const item of items) {
+    for (const name of [item.name, item.name_hi]) {
+      if (!name) continue;
+      const key = ` ${normalize(name)} `;
+      const pos = padded.lastIndexOf(key);
+      const end = pos + key.length;
+      // Prefer the dish ending closest to the price; on a tie prefer the longer, more specific name.
+      if (pos >= 0 && (end > bestPos || (end === bestPos && key.length > ` ${normalize(best.name)} `.length))) {
+        best = item;
+        bestPos = end;
+      }
+    }
+  }
+  return best;
+}
+
+/**
+ * Returns the first price in the reply that doesn't belong to the dish it is written next to
+ * ("Chicken Handi is ₹220" when Chicken Handi costs ₹240), or null when every price checks out.
+ * A price with no dish before it must still be one of the menu's prices.
+ */
+export function findWrongPrice(reply, items, allowedNumbers = new Set()) {
+  const menuPrices = new Set(items.filter((i) => typeof i.price === 'number').map((i) => i.price));
+  let segmentStart = 0;
+  for (const m of String(reply).matchAll(PRICE_PATTERN)) {
+    const value = Number((m[1] || m[2]).replace(/,/g, ''));
+    const dish = lastDishMentioned(reply.slice(segmentStart, m.index), items);
+    segmentStart = m.index + m[0].length;
+    if (allowedNumbers.has(value)) continue;
+    if (dish) {
+      // Allow the dish's price, or a total for a few plates ("2 Chicken Biryani = ₹320").
+      const ok = typeof dish.price === 'number' && value % dish.price === 0 && value / dish.price <= 10;
+      if (!ok) return { value, dish: dish.name };
+    } else if (!menuPrices.has(value)) {
+      return { value, dish: null };
+    }
+  }
+  return null;
+}
+
 function containsTerm(normalizedText, term) {
   return ` ${normalizedText} `.includes(` ${normalize(term)} `);
 }
@@ -41,11 +86,11 @@ export function validateLlmResult(raw, kb, userMessage) {
   if (!reply) return { ok: false, reason: 'empty reply' };
   if (reply.length > 1200) return { ok: false, reason: 'reply too long' };
 
-  // 1. Every price in the reply must be a real menu price, or a number the customer typed (e.g. their budget).
-  const allowedPrices = new Set(kb.items.filter((i) => typeof i.price === 'number').map((i) => i.price));
-  for (const n of String(userMessage).match(/\d+/g) || []) allowedPrices.add(Number(n));
-  const badPrice = extractPrices(reply).find((p) => !allowedPrices.has(p));
-  if (badPrice !== undefined) return { ok: false, reason: `invented price ₹${badPrice}` };
+  // 1. Every price must be the real price of the dish it is written next to. Numbers the customer
+  //    typed (e.g. their budget) may be repeated.
+  const userNumbers = new Set((String(userMessage).match(/\d+/g) || []).map(Number));
+  const wrong = findWrongPrice(reply, kb.items, userNumbers);
+  if (wrong) return { ok: false, reason: `invented price ₹${wrong.value}${wrong.dish ? ` for ${wrong.dish}` : ''}` };
 
   // 2. No offers or discounts unless the knowledge base lists offers.
   if (!kb.offers?.length && OFFER_PATTERN.test(reply) && !OFFER_PATTERN.test(userMessage)) {
