@@ -102,7 +102,7 @@ The offline answers below were run against the current knowledge base. AI-mode a
 | 2 | `suggest chicken for dinner` | 3 available chicken dishes, plus a note that some prices need confirming |
 | 3 | `biryani under 200` | Egg Biryani (₹120), Chicken Biryani (₹160), Special Biryani (₹200). Mutton Biryani (₹240) is left out. Checked live with Gemini on 9 Oct. |
 | 4 | `anda biryani milega?` | "Yes, Egg Biryani is available." + Add button |
-| 5 | `veg thali kitne ka hai` | "Veg Thali: ₹100" |
+| 5 | `egg biryani kitne ka hai` | "Egg Biryani: ₹120" |
 | 6 | `mutton paya korma price` | "price not listed - please ask staff", `needs_staff: true` |
 | 7 | `चिकन हाण्डी` | Chicken Handi description, availability, price status |
 | 8 | `do you have butter chicken?` | "Sorry, butter chicken is not on our menu." + our chicken dishes |
@@ -124,7 +124,7 @@ The offline answers below were run against the current knowledge base. AI-mode a
 
 ## 7. Limitations
 
-- **Prices are estimates**: only Veg Thali (₹100) is printed on the banners. The other prices were estimated by the team from typical small-town dhaba prices in Madhya Pradesh so the prototype is usable, and must be replaced with the restaurant-approved prices before launch. Live checks on 9 Oct with these prices: "biryani under 200", "mutton dish under 300 for dinner", "chicken handi kitne ka hai" (₹240) and "2 people, budget 500" all gave correct, in-budget answers.
+- **Prices are estimates**: all prices were estimated by the team from typical small-town dhaba prices in Madhya Pradesh so the prototype is usable, and must be replaced with the restaurant-approved prices before launch. Live checks on 9 Oct with these prices: "biryani under 200", "mutton dish under 300 for dinner", "chicken handi kitne ka hai" (₹240) and "2 people, budget 500" all gave correct, in-budget answers.
 - **Descriptions** are short neutral text written from the dish names and banner photos. They don't cover spice level or portion size, and the assistant won't claim those.
 - **Off-menu detection** uses a fixed list of common dishes. The model could still name a rarer dish that isn't on the menu. The prompt forbids it, and item ids are always filtered, so no Add button can appear for it.
 - **Offline mode** is keyword-based. Unusual phrasing gets the safe fallback instead of an answer.
@@ -134,7 +134,6 @@ The offline answers below were run against the current knowledge base. AI-mode a
   - "suggest chicken for dinner": 4 chicken dishes, price to be confirmed with staff
   - "anda biryani milega?": "Haan, Egg Biryani available hai!…" (answered in Hinglish)
   - "do you have butter chicken?": "We don't have butter chicken, but you can try our Chicken Handi or Chicken Roast."
-  - "veg thali kitne ka hai": "Veg Thali ki keemat 100 rupees hai."
   - "mutton handi price?": price not listed, staff can confirm
   - "can I book a table for 10?": points to staff, `needs_staff: true`
 

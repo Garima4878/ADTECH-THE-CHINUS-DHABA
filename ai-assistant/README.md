@@ -91,7 +91,7 @@ Structured recommendations without free text, e.g. for a "Suggest for me" button
 
 ### `GET /api/ai/health`
 
-`{ "status": "ok", "mode": "ai" | "offline", "kb_version": "0.1.0-draft", "items": 17, "live_menu": false }` for DevOps health checks.
+`{ "status": "ok", "mode": "ai" | "offline", "kb_version": "0.1.0-draft", "items": 16, "live_menu": false }` for DevOps health checks.
 
 ### `GET /api/ai/knowledge-base`
 
@@ -150,13 +150,13 @@ Add one script tag to the customer menu page:
 
 ## Status and open items
 
-- [ ] **Prices are estimates**: only Veg Thali (₹100) is printed on the banners. The other 16 prices were estimated by the team from typical small-town dhaba prices in Madhya Pradesh (Oct 2026) so the prototype is usable. Replace them with the restaurant-approved price list before launch (or load the real prices into the backend: the AI picks them up through `MENU_API_URL`).
+- [ ] **Prices are estimates**: all 16 prices were estimated by the team from typical small-town dhaba prices in Madhya Pradesh (Oct 2026) so the prototype is usable. Replace them with the restaurant-approved price list before launch (or load the real prices into the backend: the AI picks them up through `MENU_API_URL`).
 
   | Dish | ₹ | Dish | ₹ | Dish | ₹ |
   |---|---|---|---|---|---|
   | Chicken Biryani | 160 | Chicken Handi | 240 | Fish Roast | 220 |
   | Mutton Biryani | 240 | Mutton Handi | 320 | Special Thali | 200 |
-  | Egg Biryani | 120 | Mutton Korma | 300 | Veg Thali (banner) | 100 |
+  | Egg Biryani | 120 | Mutton Korma | 300 |  |  |
   | Special Biryani | 200 | Mutton Paya Korma | 260 | Jowar Roti | 20 |
   | Chicken Roast | 200 | Special Chicken & Mutton Korma | 350 | Bajra Roti | 20 |
   | Chicken Fry | 180 | | | Makka Roti | 25 |

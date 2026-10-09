@@ -53,7 +53,7 @@ const placeOrder = async (items) =>
 
 test('seed loads the shared menu and tables, and is safe to run twice', async () => {
   await seed({ log: quiet });
-  assert.equal(await MenuItem.countDocuments(), 17);
+  assert.equal(await MenuItem.countDocuments(), 16);
   assert.equal(await Table.countDocuments(), 10);
   const biryani = await MenuItem.findOne({ name: 'Chicken Biryani' }).populate('category');
   assert.equal(biryani.price, 160);
@@ -64,7 +64,7 @@ test('seed loads the shared menu and tables, and is safe to run twice', async ()
 test('GET /api/menu keeps data.menu and adds the website `items` list', async () => {
   const res = await request(app).get('/api/menu');
   assert.equal(res.status, 200);
-  assert.equal(res.body.data.menu.length, 17);
+  assert.equal(res.body.data.menu.length, 16);
   const item = res.body.items.find((i) => i.name === 'Mutton Handi');
   assert.deepEqual(Object.keys(item).sort(), ['available', 'category', 'description', 'id', 'imageUrl', 'name', 'price']);
   assert.equal(item.category, 'Mutton');
@@ -90,11 +90,11 @@ test('POST /api/orders rejects bad or unavailable dishes with 400, not a server 
 });
 
 test('customers can track their order by Order ID without logging in; staff lookup stays protected', async () => {
-  const { body } = await placeOrder([{ menuItemId: await menuId('Veg Thali'), quantity: 1 }]);
+  const { body } = await placeOrder([{ menuItemId: await menuId('Egg Biryani'), quantity: 1 }]);
   const res = await request(app).get(`/api/orders/${body.orderId}`);
   assert.equal(res.status, 200);
   assert.equal(res.body.status, 'Pending');
-  assert.equal(res.body.total, 105);
+  assert.equal(res.body.total, 126);
   assert.equal(res.body.customerName, undefined);
 
   await Order.updateOne({ orderId: body.orderId }, { status: 'Served/Completed' });

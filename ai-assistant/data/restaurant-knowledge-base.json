@@ -3,7 +3,7 @@
     "version": "0.2.0-draft",
     "last_updated": "2026-10-09",
     "source": "Dish names transcribed from the restaurant wall banners and signboard (photos in assets/photos/).",
-    "status": "DRAFT - Veg Thali (Rs 100) is from the banner. All other prices are ESTIMATED by the team from typical small-town dhaba prices in Madhya Pradesh (Oct 2026) for the prototype. Replace with the restaurant-approved price list before launch.",
+    "status": "DRAFT - All prices are ESTIMATED by the team from typical small-town dhaba prices in Madhya Pradesh (Oct 2026) for the prototype. Replace with the restaurant-approved price list before launch.",
     "currency": "INR"
   },
 
@@ -204,19 +204,6 @@
       "meal_type": ["lunch", "dinner"],
       "description": "Full non-veg thali with curry, rice, roti and sides. Ask staff for today's thali items.",
       "photo": "assets/photos/banner-handi-special-thali.jpg"
-    },
-    {
-      "id": "veg-thali",
-      "name": "Veg Thali",
-      "name_hi": "वेज थाली",
-      "category": "thali",
-      "main_ingredient": "veg",
-      "price": 100,
-      "is_veg": true,
-      "available": true,
-      "meal_type": ["lunch", "dinner"],
-      "description": "Vegetarian thali with sabzi, dal, rice and roti.",
-      "photo": "assets/photos/banner-veg-thali-rotis.jpg"
     },
     {
       "id": "jowar-roti",
